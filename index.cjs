@@ -26,9 +26,12 @@ db.connect((err) => {
 });
 
 // Sample API route
-app.get('/', (req, res) => {
-    res.send('Backend is running!');
-});
+app.get("/movies", (req, res) => {
+    db.query("SELECT * FROM Movie", (err, results) => {
+      if (err) res.status(500).json({ error: err.message });
+      else res.json(results);
+    });
+  });
 
 // Start server
 const PORT = process.env.PORT || 5000;
