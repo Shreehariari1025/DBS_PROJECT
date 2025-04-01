@@ -3,8 +3,12 @@ import Navbar from '../components/Navbar'
 import Hero_img from '../assets/Hero_img.png'
 import MovieCard from '../components/MovieCard'
 import ReviewCard from '../components/ReviewCard'
+import Footer from '../components/Footer'
+import { useNavigate } from 'react-router-dom'
 
 function Landing() {
+  const navigate=useNavigate();
+  
   return (
     <div className='text-white font-[Inter]  bg-gradient-to-b from-stone-950 to-red-700'>
         <Navbar/>
@@ -20,7 +24,7 @@ function Landing() {
     </div>
     </div>
 
-    <div className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
+    <div id='trending' className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
     <div className='text-red-50 text-4xl text-left font-[Montserrat]'>Trending movies</div>
     <div className='flex flex-row overflow-x-autoitems-center gap-2'>
     <MovieCard movieId = {1}/>
@@ -32,7 +36,7 @@ function Landing() {
     </div>
     </div>
 
-    <div className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
+    <div id='about' className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
         <div className='text-red-50 text-4xl text-left font-[Montserrat]'>About website</div>
     <div className=' text-red-950 grid grid-cols-5 gap-2 ' >
       <div className='bg-gradient-to-b from-red-50 to-red-400 rounded-2xl row-span-2 p-1.5'>
@@ -57,7 +61,7 @@ function Landing() {
     </div>
 
       {/* some reviews from DB?? */} 
-    <div className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
+    <div id='reviews' className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
     <div className='text-red-50 text-4xl text-left font-[Montserrat]'>Reviews</div>
     <div className='flex items-center overflow-x-auto gap-2'>
         <ReviewCard/>
@@ -66,12 +70,12 @@ function Landing() {
       </div>
    
 
-    <div className='flex flex-col justify-center gap-2 items-center bg-gradient-to-b from-stone-950 to-red-800'>
+    <div className='flex flex-col justify-center gap-2 items-center bg-gradient-to-b from-stone-950 to-red-800 pb-4'>
         <div className='text-2xl text-center'>Join 50,000+ Movie Lovers!</div>
         <div>Track your watchlist, get smart recommendations, and engage with the community</div>
-        <button className='bg-red-600 text-black text-center p-2 w-25 rounded-2xl'>Sign In</button>
+        <button onClick={()=>{navigate("/signin")}} className='bg-red-600 text-black text-center p-2 w-25 rounded-2xl'>Sign In</button>
     </div>
-
+    <Footer/>
     </div>
   )
 }

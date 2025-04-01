@@ -19,7 +19,7 @@ function Dashboard() {
         </div>
       </div>
       
-      <div className=' bg-gradient-to-br from-stone-950 to-black  flex flex-col gap-3 p-20'> {/*recommendations */}
+      <div id='recommendations' className=' bg-gradient-to-br from-stone-950 to-black  flex flex-col gap-3 p-20'> {/*recommendations */}
         <div className='text-3xl font-[Montserrat] text-left '>Recommendations</div>
         <div className='flex gap-2 items-center overflow-x-auto'>
         <RecommendationsCard/>
@@ -29,7 +29,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className='w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
+      <div id='trending2'className='w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
      <div className='text-3xl font-[Montserrat] text-left'>Trending movies</div>
     <div className='flex gap-2 items-center overflow-x-auto'>
     <MovieCard />
@@ -40,7 +40,7 @@ function Dashboard() {
     </div>
     </div>
 
-<div className='w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
+<div id='watchedrecently' className='w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
   <div className='text-3xl font-[Montserrat] text-left'>Recently watched</div>
   <div className='flex gap-2 items-center overflow-x-auto'>
     <MovieCard />
@@ -52,7 +52,7 @@ function Dashboard() {
 </div>
 
 
-<div className='w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
+<div id='toprated' className='w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
   <div className='text-3xl font-[Montserrat] text-left'>Top rated</div>
   <div className='flex gap-2 items-center overflow-x-auto'>
     <MovieCard />

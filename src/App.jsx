@@ -13,6 +13,7 @@ import RecommendationsCard from './components/RecommendationsCard'
 import Navbar2 from './components/Navbar2'
 import UserProfile from './Pages/UserProfile'
 import ReviewCard2 from './components/ReviewCard2'
+import IndividualMovie from './Pages/IndividualMovie';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -25,6 +26,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/userprofile" element={<UserProfile />} />
+        <Route path="/individualmovie" element={<IndividualMovie/>} />
       </Routes>
    
   )
