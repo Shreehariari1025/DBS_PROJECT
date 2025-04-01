@@ -93,6 +93,14 @@ app.post('/register', (req, res) => {
     if (!name || !email || !phone_no || !password) {
       return res.status(400).json({ message: 'All fields are required!' });
     }
+    console.log({
+        name,
+        email,
+        phone_no,
+        password,
+        preferred_genre,
+        preferred_language
+      });
   
     // Step 1: Insert into the User table
     const userQuery = `INSERT INTO User (name, email, phone_no) VALUES (?, ?, ?)`;
