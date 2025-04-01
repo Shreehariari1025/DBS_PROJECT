@@ -1,16 +1,33 @@
 import React from 'react'
-import Navbar2 from '../components/Navbar2'
+
 import ReviewCard2 from '../components/ReviewCard2';
 import Footer from '../components/Footer';
 import MovieCard
  from '../components/MovieCard';
+ import { Link,NavLink } from 'react-router-dom';
+ import Robot from '../assets/Robot.png'
 let username='USERNAME'.toUpperCase();
 let date='12/07/2024';
 function userProfile() {
   return (
     <div>
     <div className='w-screen h-screen  font-[Inter] bg-gradient-to-br from-black to-red-950 text-red-50 '>
-        <Navbar2/>
+        
+          <div className=' relative z-30 text-white font-[Inter] '>
+        <div className='w-full h-20 bg-red-50/10 backdrop-blur-md fixed top-0 left-0 flex justify-between p-3 items-center '> 
+        <div className='font-[Aclonica] text-xl'>BhatFlix</div>
+        <div className='flex gap-3'>
+        <div className='flex gap-3 items-center '>
+
+            <Link to="/dashboard">Home</Link>
+            <Link to="/userprofile">
+            <img  className='h-10 w-10 rounded-full'src={Robot} alt="" /></Link>
+        </div>
+           
+        </div>
+        </div>
+    </div>
+
 
         <div className='px-20 pt-30 flex flex-col items-left gap-2 text-left'>  {/*username,since date */}
         <div className='font-[Montserrat] text-left  text-2xl font-medium'>{username}</div>
