@@ -30,9 +30,9 @@ function Landing() {
     <MovieCard movieId = {1}/>
     <MovieCard movieId = {2}/>
     <MovieCard movieId = {3}/>
-    {/* <MovieCard />
-    <MovieCard/>
-    <MovieCard/> */}
+    <MovieCard movieId = {4}/>
+    <MovieCard movieId = {5}/>
+    <MovieCard movieId = {6}/>
     </div>
     </div>
 
