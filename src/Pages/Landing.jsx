@@ -23,12 +23,12 @@ function Landing() {
     <div className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
     <div className='text-red-50 text-4xl text-left font-[Montserrat]'>Trending movies</div>
     <div className='flex flex-row overflow-x-autoitems-center gap-2'>
+    <MovieCard movieId = {1}/>
+    <MovieCard movieId = {2}/>
+    <MovieCard movieId = {3}/>
+    {/* <MovieCard />
     <MovieCard/>
-    <MovieCard/>
-    <MovieCard/>
-    <MovieCard/>
-    <MovieCard/>
-    <MovieCard/>
+    <MovieCard/> */}
     </div>
     </div>
 
