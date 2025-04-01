@@ -25,6 +25,44 @@ db.connect((err) => {
     }
 });
 
+app.post("/signin", async (req, res) => {
+    const { email, password } = req.body;
+
+    console.log("Login attempt:", { email, password }); // Log entered data
+
+    if (!email || !password) {
+        console.log("Missing email or password");
+        return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    try {
+        // Check if user exists
+        const [user] = await db.promise().query(
+            `SELECT User.user_id, User.name, Credentials.password 
+             FROM User 
+             JOIN Credentials ON User.user_id = Credentials.user_id 
+             WHERE User.email = ?`, 
+            [email]
+        );
+
+        if (user.length === 0) {
+            console.log("User not found:", email);
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Compare passwords
+        if (user[0].password !== password) {
+            console.log("Invalid password for:", email);
+            return res.status(401).json({ error: "Invalid password" });
+        }
+
+        console.log("Login successful for:", email);
+        res.status(200).json({ message: "Login successful", user: { id: user[0].user_id, name: user[0].name } });
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 
 app.get("/movies/:id", async (req, res) => {
