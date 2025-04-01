@@ -9,7 +9,7 @@ function Register() {
   const [languages, setLanguages] = useState([]);
   const [showGenreDropdown, setShowGenreDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-   const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone_no: '',
@@ -30,6 +30,37 @@ function Register() {
     setLanguages((prev) => prev.includes(language) ? prev.filter(l => l !== language) : [...prev, language]);
   };
 
+  const handleRegister = async () => {
+    console.log(formData); // Log all the details to the console
+
+    const requestBody = {
+      ...formData,
+      preferred_genre: genres,
+      preferred_language: languages,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Registration successful');
+        navigate('/dashboard');
+      } else {
+        alert(data.message || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      alert('An error occurred');
+    }
+  };
+
   return (
     <div className="w-full h-screen px-[150px] relative bg-gradient-to-br from-black to-red-950 flex justify-center items-center text-neutral-200">
       <div className='w-3xl h-[650px] relative bg-gradient-to-l from-stone-950 to-red-500 rounded-3xl border-2 border-[#e10000] flex gap-3'>
@@ -45,31 +76,61 @@ function Register() {
           {/* Name */}
           <div className='flex flex-col'>
             <label htmlFor="name">Name</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="text" id='name'/>
+            <input 
+              className='bg-black rounded-xl border border-red-50 p-2' 
+              type="text" 
+              id='name'
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
           </div>
 
           {/* Email */}
           <div className='flex flex-col'>
             <label htmlFor="email">Email</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="email" id='email'/>
+            <input 
+              className='bg-black rounded-xl border border-red-50 p-2' 
+              type="email" 
+              id='email'
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
           </div>
 
           {/* Phone Number */}
           <div className='flex flex-col'>
             <label htmlFor="phone-no">Phone Number</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="text" id='phone-no'/>
+            <input 
+              className='bg-black rounded-xl border border-red-50 p-2' 
+              type="text" 
+              id='phone-no'
+              value={formData.phone_no}
+              onChange={(e) => setFormData({ ...formData, phone_no: e.target.value })}
+            />
           </div>
 
           {/* Password */}
           <div className='flex flex-col'>
             <label htmlFor="password">Password</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="password" id='password'/>
+            <input 
+              className='bg-black rounded-xl border border-red-50 p-2' 
+              type="password" 
+              id='password'
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            />
           </div>
 
           {/* Confirm Password */}
           <div className='flex flex-col'>
             <label htmlFor="confirm-password">Confirm Password</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="password" id='confirm-password'/>
+            <input 
+              className='bg-black rounded-xl border border-red-50 p-2' 
+              type="password" 
+              id='confirm-password'
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+            />
           </div>
 
           {/* Preferred Genre Dropdown */}
@@ -108,7 +169,9 @@ function Register() {
 
           {/* Register Button and Login Link */}
           <div className='flex flex-col justify-center align-center gap-2'>
-            <button className='bg-red-600 text-center p-2 rounded-3xl text-black w-50 self-center hover:cursor-pointer hover:bg-red-500' onClick={() => navigate("/dashboard")}>
+            <button 
+              className='bg-red-600 text-center p-2 rounded-3xl text-black w-50 self-center hover:cursor-pointer hover:bg-red-500' 
+              onClick={handleRegister}>
               Register
             </button>
             <p className='text-center'>Already have an account? <Link className='underline hover:text-blue-200' to="/signin">Login</Link></p>

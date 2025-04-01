@@ -48,6 +48,50 @@ app.get("/movies/:id", async (req, res) => {
     }
 });
 
+app.post('/register', (req, res) => {
+    const { name, email, phone_no, password, preferred_genre, preferred_language } = req.body;
+  
+    // Validate required fields
+    if (!name || !email || !phone_no || !password) {
+      return res.status(400).json({ message: 'All fields are required!' });
+    }
+  
+    // Step 1: Insert into the User table
+    const userQuery = `INSERT INTO User (name, email, phone_no) VALUES (?, ?, ?)`;
+    
+    db.execute(userQuery, [name, email, phone_no], (err, result) => {
+      if (err) {
+        console.error('Error inserting into User table:', err);
+        return res.status(500).json({ message: 'Database error occurred' });
+      }
+  
+      // Step 2: Insert into the Credentials table (after getting the user_id)
+      const user_id = result.insertId;
+      const credentialsQuery = `INSERT INTO Credentials (user_id, password) VALUES (?, ?)`;
+  
+      db.execute(credentialsQuery, [user_id, password], (err, result) => {
+        if (err) {
+          console.error('Error inserting into Credentials table:', err);
+          return res.status(500).json({ message: 'Database error occurred' });
+        }
+  
+        // Step 3: Insert into the UserPreferences table
+        const preferencesQuery = `INSERT INTO UserPreferences (user_id, preferred_genre, preferred_language) VALUES (?, ?, ?)`;
+  
+        db.execute(preferencesQuery, [user_id, preferred_genre, preferred_language], (err, result) => {
+          if (err) {
+            console.error('Error inserting into UserPreferences table:', err);
+            return res.status(500).json({ message: 'Database error occurred' });
+          }
+  
+          // Successfully inserted into all tables
+          res.status(200).json({ message: 'Registration successful' });
+        });
+      });
+    });
+  });
+  
+
 
   
 // Start server
