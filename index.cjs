@@ -25,39 +25,14 @@ db.connect((err) => {
     }
 });
 
-// Sample API route
-app.get("/movies", (req, res) => {
-    db.query("SELECT * FROM Movie", (err, results) => {
-      if (err) res.status(500).json({ error: err.message });
-      else res.json(results);
-    });
-  });
 
-// app.get('/movies/:id', async (req, res) => {
-//     const { id } = req.params;
-//     try {
-//         const [movie] = await db.promise().query("SELECT * FROM Movie WHERE movie_id = ?", [id]);
-//         if (movie.length === 0) return res.status(404).json({ error: 'Movie not found' });
-//         res.json(movie[0]);
-//     } catch (error) {
-//         res.status(500).json({ error: 'Failed to fetch movie' });
-//     }
-// });
-
-// app.get("/movies/:id", (req, res) => {
-//     const { id } = req.params;
-//     db.query(("SELECT * FROM Movie where id = ?",[id]), (err, results) => {
-//       if (err) res.status(500).json({ error: err.message });
-//       else res.json(results);
-//     });
-//   });
 
 app.get("/movies/:id", async (req, res) => {
     const { id } = req.params;
     console.log(`Fetching movie with ID: ${id}`);  // Log request
     
     try {
-        const [movie] = await db.promise().query("SELECT * FROM movie m JOIN movieimages i on i.movie_id= m.movie_id WHERE m.movie_id = ?", [id]);
+        const [movie] = await db.promise().query("SELECT m.title, m.genre, m.release_year, i.image_url, round(avg(r.rating),1) as avg_rating FROM movie m JOIN movieimages i on i.movie_id= m.movie_id join reviews r on r.movie_id = m.movie_id WHERE m.movie_id = ? group by m.title, m.genre, m.release_year, i.image_url", [id]);
         
         console.log("Query Result:", movie);  // Log DB response
         

@@ -26,7 +26,7 @@ function MovieCard({ movieId }) {
         <div>{movie.title}</div>
         <div className='flex justify-center  items-center gap-1'>
         <i className="fa-sharp fa-solid fa-star fa-sm" style={{ color: "#dc2626" }}></i>
-        <div>8.8</div> 
+        <div>{movie.avg_rating}</div> 
         </div>
         </div>
 
