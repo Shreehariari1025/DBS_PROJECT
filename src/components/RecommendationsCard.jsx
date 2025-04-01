@@ -20,7 +20,7 @@ function RecommendationsCard() {
             </div>
     
           <div className='flex justify-evenly items-center text-black text-sm px-2 absolute bottom-3 gap-3'>
-            <button className='lg:w-44 h-10 sm:w-20 bg-red-600 rounded-2xl'>Watchlist</button>
+            <button className='lg:w-44 h-10 sm:w-20 bg-red-600 rounded-2xl'>Watch now</button>
             <button className='lg:w-44 h-10 sm:w-20 bg-white rounded-2xl'>More info</button>
           </div>
             

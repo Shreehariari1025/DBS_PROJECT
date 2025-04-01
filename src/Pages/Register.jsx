@@ -74,7 +74,7 @@ function Register() {
           <h2 className='text-red-600 text-2xl text-center'>REGISTER</h2>
           
           {/* Name */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col text-left '>
             <label htmlFor="name">Name</label>
             <input 
               className='bg-black rounded-xl border border-red-50 p-2' 
@@ -86,7 +86,7 @@ function Register() {
           </div>
 
           {/* Email */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col text-left'>
             <label htmlFor="email">Email</label>
             <input 
               className='bg-black rounded-xl border border-red-50 p-2' 
@@ -98,7 +98,7 @@ function Register() {
           </div>
 
           {/* Phone Number */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col text-left'>
             <label htmlFor="phone-no">Phone Number</label>
             <input 
               className='bg-black rounded-xl border border-red-50 p-2' 
@@ -110,7 +110,7 @@ function Register() {
           </div>
 
           {/* Password */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col text-left'>
             <label htmlFor="password">Password</label>
             <input 
               className='bg-black rounded-xl border border-red-50 p-2' 
@@ -122,7 +122,7 @@ function Register() {
           </div>
 
           {/* Confirm Password */}
-          <div className='flex flex-col'>
+          <div className='flex flex-col text-left'>
             <label htmlFor="confirm-password">Confirm Password</label>
             <input 
               className='bg-black rounded-xl border border-red-50 p-2' 
@@ -134,7 +134,7 @@ function Register() {
           </div>
 
           {/* Preferred Genre Dropdown */}
-          <div className='flex flex-col relative'>
+          <div className='flex flex-col relative text-left'>
             <label>Preferred Genre</label>
             <div className='bg-black rounded-xl border border-red-50 p-2 cursor-pointer' onClick={() => setShowGenreDropdown(!showGenreDropdown)}>
               {genres.length > 0 ? genres.join(", ") : "Select Genres"}
@@ -151,7 +151,7 @@ function Register() {
           </div>
 
           {/* Preferred Language Dropdown */}
-          <div className='flex flex-col relative'>
+          <div className='flex flex-col relative text-left'>
             <label>Preferred Language</label>
             <div className='bg-black rounded-xl border border-red-50 p-2 cursor-pointer' onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}>
               {languages.length > 0 ? languages.join(", ") : "Select Languages"}
