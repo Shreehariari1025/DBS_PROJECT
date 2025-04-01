@@ -9,6 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // To handle JSON requests
 
+let user;
 // Database connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -37,7 +38,7 @@ app.post("/signin", async (req, res) => {
 
     try {
         // Check if user exists
-        const [user] = await db.promise().query(
+        [user] = await db.promise().query(
             `SELECT User.user_id, User.name, Credentials.password 
              FROM User 
              JOIN Credentials ON User.user_id = Credentials.user_id 
@@ -138,7 +139,61 @@ app.post('/register', (req, res) => {
   });
   
 
+// app.get('/recommended/:userId', (req, res) => {
+//     const userId = req.params.userId;
+//     console.log(user);
+//     const query = `SELECT r.movie_id, r.title, r.genre, r.language, avg(re.rating)as avg_rating, m.image_url,movie.release_year FROM RecommendedMovies r join movie on movie.movie_id = r.movie_id join reviews re on re.movie_id=r.movie_id join movieimages m on m.movie_id = r.movie_id WHERE r.user_id = ? group by r.movie_id, r.title, r.genre, r.language, m.image_url`;
 
+//     db.query(query, [userId], (err, results) => {
+//         if (err) {
+//             console.error('Error fetching recommended movies:', err);
+//             return res.status(500).json({ error: 'Internal Server Error' });
+//         }
+//         console.log('Recommended Movies:', results);
+//         res.json(results);
+//     });
+// });
+
+// Server-side code for fetching trending movies
+app.get('/trending', (req, res) => {
+    const query = 'SELECT * FROM TrendingMovies';  // Query for trending movies
+    console.log('Fetching trending movies...');  // Check if this log appears
+  
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error fetching trending movies:', err);
+        return res.status(500).json({ message: 'Failed to fetch trending movies.' });
+      }
+  
+      console.log('Query Result:', results);  // This should print the result of the query
+  
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'No trending movies found.' });
+      }
+  
+      res.json(results);  // Send the query result as a response
+    });
+  });
+
+  app.get('/top-rated', (req, res) => {
+    const query = 'SELECT * FROM TopRatedMovies'; // Query the TopRatedMovies view
+    
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error fetching top-rated movies:', err);
+        return res.status(500).json({ message: 'Error fetching top-rated movies' });
+      }
+      res.json(results);
+    });
+  });
+  
+  // A simple test route
+app.get('/test', (req, res) => {
+    console.log('Test route hit!');
+    res.send('Test successful');
+  });
+  
+  
   
 // Start server
 const PORT = process.env.PORT || 5000;

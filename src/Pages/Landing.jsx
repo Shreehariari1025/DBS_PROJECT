@@ -1,15 +1,23 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'; 
 import Navbar from '../components/Navbar'
 import Hero_img from '../assets/Hero_img.png'
 import MovieCard from '../components/MovieCard'
 import ReviewCard from '../components/ReviewCard'
 import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
-const movieIds = [1, 2, 3, 4, 5, 6];
 
 function Landing() {
+  const [trendingMovies, setTrendingMovies] = useState([]);
   const navigate=useNavigate();
   
+  useEffect(() => {
+      // Fetch trending movies from the API
+      fetch("http://localhost:5000/trending")
+        .then((res) => res.json())
+        .then((data) => setTrendingMovies(data))
+        .catch((err) => console.error("Error fetching trending movies:", err));
+      }, []);
+
   return (
     <div className='text-white font-[Inter]  bg-gradient-to-b from-stone-950 to-red-700'>
         <Navbar/>
@@ -29,9 +37,9 @@ function Landing() {
     <div className='text-red-50 text-4xl text-left font-[Montserrat]'>Trending movies</div>
     <div className='flex flex-row overflow-x-autoitems-center gap-2'>
     
-      {movieIds.map((id) => (
-        <MovieCard key={id} movieId={id} />
-      ))}
+      {trendingMovies.map((movie) => (
+            <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
+          ))}
     
     </div>
     </div>
