@@ -1,93 +1,139 @@
-import React from 'react'
-import Navbar2 from '../components/Navbar2'
-import Kantara from '../assets/Kantara.png'
-import Footer from '../components/Footer'
-import CastCard from '../components/CastCard'
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Navbar2 from '../components/Navbar2';
+import CastCard from '../components/CastCard';
+import ReviewCard3 from '../components/ReviewCard3';
+import MovieCard from '../components/MovieCard';
 import Robot from '../assets/Robot.png'
-import ReviewCard3 from '../components/ReviewCard3'
-import MovieCard from '../components/MovieCard'
+import Kantara from '../assets/Kantara.png'
+import Footer from '../components/Footer';
+import RRR from '../../uploads/RRR.jpg'
+
 function IndividualMovie() {
+  const { movieId } = useParams();  // ✅ Corrected useParams to match backend
+  const [movieDetails, setMovieDetails] = useState(null);
+  const [actors, setActors] = useState([]);
+  const [nonActors, setNonActors] = useState([]);
+  const [similarMovies, setSimilarMovies] = useState([]);
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    if (!movieId) return;  // ✅ Prevent API calls if movieId is undefined
+
+    // Fetch Movie Details
+    fetch(`http://localhost:5000/moviedetails/${movieId}`)
+      .then(res => res.json())
+      .then(data => setMovieDetails(data))
+      .catch(err => console.error("Error fetching movie details:", err));
+
+    // Fetch Actors
+    fetch(`http://localhost:5000/actors/${movieId}`)
+      .then(res => res.json())
+      .then(data => setActors(data.actors || []))
+      .catch(err => console.error("Error fetching actors:", err));
+
+    // Fetch Non-Actors (Crew)
+    fetch(`http://localhost:5000/non-actors/${movieId}`)
+      .then(res => res.json())
+      .then(data => setNonActors(data.actors || []))
+      .catch(err => console.error("Error fetching non-actors:", err));
+
+    // Fetch Similar Movies
+    fetch(`http://localhost:5000/similar-movies/${movieId}`)
+      .then(res => res.json())
+      .then(data => setSimilarMovies(data.similar_movies || []))
+      .catch(err => console.error("Error fetching similar movies:", err));
+
+    // Fetch Reviews
+    fetch(`http://localhost:5000/reviews/${movieId}`)
+      .then(res => res.json())
+      .then(data => setReviews(data.reviews || []))
+      .catch(err => console.error("Error fetching reviews:", err));
+
+  }, [movieId]);
+
   return (
-    <div className='w-screen h-screen  relative font-[Inter] text-red-50  bg-gradient-to-br from-black to-red-950'>
-        <Navbar2/>
-        <div className=' pt-30 w-screen h-[700px] bg-cover bg-center' style={{ backgroundImage: `url(${Kantara})` }}>
-        <div className='p-15 absolute top-45'>
-          <img className='w-96 h-60 object-cover border border-red-50 rounded-2xl ' src={Robot} alt="not found" />
-          <div className='w-96 flex text-3xl justify-between'>
-          <div className=' font-semibold font-[Montserrat]'>Name</div>
-          <div className='flex items-center justify-center'>
-          <i className="fa-sharp fa-solid fa-star fa-sm" style={{ color: "#dc2626" }}></i>
-            <div>8.8</div>
+    <div className='w-screen h-screen relative font-[Inter] text-red-50 bg-gradient-to-br from-black to-red-950'>
+      <Navbar2 />
 
-            <div className=' absolute left-125 text-sm flex gap-2'>
-              <button className="w-28 h-10 relative bg-red-600 rounded-2xl  outline-black/75 text-black">Watch</button>
-              <button className='w-28 h-10 relative rounded-2xl outline outline-white text-red-50/75 bg-inherit '>Review</button>
+      {/* ✅ Movie Details Section */}
+      {movieDetails && (
+        <div 
+          className='pt-30 w-screen h-[700px] bg-cover bg-center' 
+          style={{ backgroundImage: `url(${movieDetails.image_url})` }}
+        >
+          <div className='p-15 absolute top-45'>
+            <img 
+              className='w-96 h-60 object-cover border border-red-50 rounded-2xl' 
+              src={movieDetails.image_url} 
+              alt="Movie Poster" 
+            />
+            <div className='w-96 flex text-3xl justify-between'>
+              <div className='font-semibold font-[Montserrat]'>{movieDetails.title}</div>
+              <div className='flex items-center justify-center'>
+                <i className="fa-sharp fa-solid fa-star fa-sm" style={{ color: "#dc2626" }}></i>
+                <div>{movieDetails.avg_rating || "N/A"}</div>
+                <div className='absolute left-125 text-sm flex gap-2'>
+                  <button className="w-28 h-10 bg-red-600 rounded-2xl text-black">Watch</button>
+                  <button className='w-28 h-10 rounded-2xl outline outline-white text-red-50/75 bg-inherit'>Review</button>
+                </div>
+              </div>
             </div>
-
-          </div>
-          </div>
-
-          <div className='text-left text-red-50/50 w-96 '>
-          Year | Genre | Language
+            <div className='text-left text-red-50/50 w-96'>
+              {movieDetails.release_year} | {movieDetails.genre}
+            </div>
           </div>
 
+          <div className='p-15 absolute -bottom-3 flex flex-col justify-evenly '>
+            <div className='font-[Montserrat] text-4xl font-medium text-left'>Description</div>
+            <div className='text-sm text-red-50/50 text-left'>{movieDetails.description}</div>
+          </div>
         </div>
+      )}
 
-        <div className=' p-15 absolute -bottom-3 flex flex-col justify-evenly '>
-            <div className='  font-[Montserrat] text-4xl font-medium text-left'>Description</div>
-            <div className='text-sm text-red-50/50 text-left'>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sunt laboriosam aliquid odio ullam accusamus voluptate ipsum veritatis esse a vel qui eveniet impedit quidem placeat, odit animi dolore harum voluptas!</div>
-        </div>
-        </div>
-           
-        <div className=' bg-gradient-to-br from-stone-950 to-black  flex flex-col  p-15 '> 
-        <div className='text-3xl font-[Montserrat] text-left '>Cast</div>
+      {/* ✅ Cast Section */}
+      <div className='bg-gradient-to-br from-black to-red-950 p-15'>
+        <div className='text-3xl font-[Montserrat] text-left'>Cast</div>
         <div className='flex gap-2 h-75 items-center overflow-x-auto'>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>  
+          {actors.map(actor => (
+            <CastCard key={actor.individual_id} actorName={actor.name} image={actor.image} role="Actor" />
+          ))}
         </div>
       </div>
 
-
-      <div className=' bg-gradient-to-br from-stone-950 to-black  flex flex-col  p-15 '> 
-        <div className='text-3xl font-[Montserrat] text-left '>Crew</div>
+      {/* ✅ Crew Section */}
+      <div className='bg-gradient-to-br from-black to-red-950 p-15'>
+        <div className='text-3xl font-[Montserrat] text-left'>Crew</div>
         <div className='flex gap-2 h-75 items-center overflow-x-auto'>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>
-        <CastCard/>  
+          {nonActors.map(crew => (
+            <CastCard key={crew.individual_id} actorName={crew.name} image={crew.image} role="Crew" />
+          ))}
         </div>
       </div>
 
-      <div className=' bg-gradient-to-br from-stone-950 to-black  flex flex-col  p-15 '>
-      <div className='text-3xl font-[Montserrat] text-left '>Reviews</div>
-      <div className='flex gap-2 h-75 items-center overflow-x-auto'>
-        <ReviewCard3/> 
-        <ReviewCard3/> 
-        <ReviewCard3/> 
-        <ReviewCard3/> 
-        <ReviewCard3/> 
+      {/* ✅ Reviews Section */}
+      <div className='bg-gradient-to-br from-black to-red-950 p-15'>
+        <div className='text-3xl font-[Montserrat] text-left'>Reviews</div>
+        <div className='flex gap-2 h-75 items-center overflow-x-auto'>
+          {reviews.map(review => (
+            <ReviewCard3 key={review.review_id} review={review} />
+          ))}
         </div>
       </div>
 
-      <div  className=' bg-gradient-to-br from-stone-950 to-black  flex flex-col gap-3 p-20'> {/*recommendations */}
-        <div className='text-3xl font-[Montserrat] text-left '>Similar movies</div>
-        <div className='flex gap-2 items-center overflow-x-auto'>
-        <MovieCard/>
-        <MovieCard/>
-        <MovieCard/>
-        <MovieCard/>
+      {/* ✅ Similar Movies Section */}
+      <div className='bg-gradient-to-br from-black to-red-950 p-15'>
+        <div className='text-3xl font-[Montserrat] text-left'>Similar Movies</div>
+        <div className='flex gap-2 h-75 items-center overflow-x-auto'>
+          {similarMovies.map(movie => (
+            <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
+          ))}
         </div>
       </div>
 
-        <Footer/>
+      <Footer />
     </div>
-  )
+  );
 }
 
-export default IndividualMovie
+export default IndividualMovie;

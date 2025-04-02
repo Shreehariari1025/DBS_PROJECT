@@ -6,7 +6,7 @@ import MovieCard
  from '../components/MovieCard';
  import { Link,NavLink } from 'react-router-dom';
  import Robot from '../assets/Robot.png'
-let username='USERNAME'.toUpperCase();
+let username='Shreehari10'.toUpperCase();
 let date='12/07/2024';
 function userProfile() {
   return (
@@ -37,16 +37,16 @@ function userProfile() {
         <div className='grid grid-cols-3 p-20 gap-2 text-red-950 bg-gradient-to-br from-stone-950 to-black'>
             <div className='flex flex-col  items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2 row-span-2 relative'>
                 <div className='text-xl'> Personal details</div>
-                <div> Name: Name</div>
-                <div>Email: email</div>
-                <div>Phone No:number</div>
+                <div> Name: Shreehari</div>
+                <div>Email: hari10@golibaje.com</div>
+                <div>Phone No:9854712354</div>
                 <div>Password: *****</div>
                 <i className="fa-solid fa-pen-to-square absolute top-2 right-2 hover:cursor-pointer" style={{ color: "#000000" }}></i>
             </div>
             <div className='flex flex-col  items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2 col-span-2 relative'>
                 <div className='text-xl'>Preferences</div>
-                <div>Preferred languages:languages</div>
-                <div>Preferred genres: genres</div>
+                <div>Preferred languages:English, Kannada, Hindi</div>
+                <div>Preferred genres: Sci-FI, Thriller, Action</div>
                 <i className="fa-solid fa-pen-to-square absolute top-2 right-2 hover:cursor-pointer" style={{ color: "#000000" }}></i>
             </div>
             <div className='flex flex-col  items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2'>

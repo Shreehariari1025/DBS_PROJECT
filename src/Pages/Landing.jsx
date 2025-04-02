@@ -35,7 +35,7 @@ function Landing() {
 
     <div id='trending' className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
     <div className='text-red-50 text-4xl text-left font-[Montserrat]'>Trending movies</div>
-    <div className='flex flex-row overflow-x-autoitems-center gap-2'>
+    <div className='flex flex-row overflow-x-auto items-center gap-2'>
     
       {trendingMovies.map((movie) => (
             <MovieCard key={movie.movie_id} movieId={movie.movie_id} />

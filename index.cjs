@@ -194,6 +194,137 @@ app.get('/test', (req, res) => {
   });
   
   
+  // Get Actors by Movie ID
+app.get('/actors/:movie_id', (req, res) => {
+    const movieId = req.params.movie_id;
+  
+    const query = `
+      SELECT individuals.individual_id, individuals.name, individuals.image
+      FROM cast
+      JOIN individuals ON cast.individual_id = individuals.individual_id
+      join role on role.individual_id = cast.individual_id
+      WHERE cast.movie_id = ? AND role.role = 'Actor';
+    `;
+  
+    db.query(query, [movieId], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query error' });
+      }
+      res.json({ actors: results });
+    });
+  });
+
+  app.get('/non-actors/:movie_id', (req, res) => {
+    const movieId = req.params.movie_id;
+  
+    const query = `
+      SELECT individuals.individual_id, individuals.name, individuals.image
+      FROM cast
+      JOIN individuals ON cast.individual_id = individuals.individual_id
+      join role on role.individual_id = cast.individual_id
+      WHERE cast.movie_id = ? AND role.role != 'Actor';
+    `;
+  
+    db.query(query, [movieId], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query error' });
+      }
+      res.json({ actors: results });
+    });
+  });
+
+  // Get Similar Movies by Genre
+app.get('/similar-movies/:movie_id', (req, res) => {
+    const movieId = req.params.movie_id;
+  
+    // Step 1: Get the genre of the given movie
+    const genreQuery = 'SELECT genre FROM movie WHERE movie_id = ?';
+  
+    db.query(genreQuery, [movieId], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query error1' });
+      }
+  
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'Movie not found' });
+      }
+  
+      const genre = results[0].genre;
+  
+      // Step 2: Find similar movies based on the genre
+      const similarMoviesQuery = `
+        SELECT movie_id, title, genre, duration, language, release_year
+        FROM movie
+        WHERE genre = ? AND movie_id != ?;
+      `;
+  
+      db.query(similarMoviesQuery, [genre, movieId], (err, similarMovies) => {
+        if (err) {
+          return res.status(500).json({ error: 'Database query error2' });
+        }
+  
+        if (similarMovies.length === 0) {
+          return res.status(404).json({ error: 'No similar movies found' });
+        }
+  
+        res.json({ similar_movies: similarMovies });
+      });
+    });
+  });
+  
+  // Get Reviews by Movie ID
+app.get('/reviews/:movie_id', (req, res) => {
+    const movieId = req.params.movie_id;
+  
+    const query = `
+      SELECT review_id, review_heading, review_text, review_date, rating, user_id
+      FROM reviews
+      WHERE movie_id = ?;
+    `;
+  
+    db.query(query, [movieId], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query error' });
+      }
+  
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'No reviews found for this movie' });
+      }
+  
+      res.json({ reviews: results });
+    });
+  });
+  
+  app.get('/moviedetails/:movieId', (req, res) => {
+    const movieId = req.params.movieId;
+
+    const query = `
+       SELECT m.title, m.genre, m.release_year, 
+       CONCAT('/', i.image_url) AS image_url, 
+       ROUND(AVG(r.rating), 1) AS avg_rating, 
+       m.description 
+FROM movie m 
+JOIN movieimages i ON i.movie_id = m.movie_id 
+JOIN reviews r ON r.movie_id = m.movie_id 
+WHERE m.movie_id = ? 
+GROUP BY m.title, m.genre, m.release_year, image_url, m.description;
+
+    `;
+
+    db.query(query, [movieId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Movie not found' });
+        }
+
+        res.json(results[0]); // Send movie details as JSON
+    });
+});
+
+  
   
 // Start server
 const PORT = process.env.PORT || 5000;
