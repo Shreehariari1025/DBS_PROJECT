@@ -2,26 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mysql = require('mysql2');
-const session = require("express-session");
-const jwt = require("jsonwebtoken");
-const MySQLStore = require("express-mysql-session")(session);
 
-// Middleware to verify JWT
-const authenticateToken = (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <token>"
-    
-    if (!token) {
-        return res.status(401).json({ error: "Access denied. No token provided." });
-    }
-
-    jwt.verify(token, "your_secret_key", (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ error: "Invalid or expired token" });
-        }
-        req.user = decoded; // Store decoded user info in `req.user`
-        next();
-    });
-};
 
 dotenv.config();
 
@@ -43,18 +24,6 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
-// Initialize session middleware
-// app.use(session({
-//     secret: "hari10",
-//     resave: false,
-//     saveUninitialized: false,
-//     store: sessionStore,
-//     cookie: {
-//         httpOnly: true,
-//         secure: false,   // Change to `true` in production with HTTPS
-//         sameSite: "lax"  // Ensures cookies are shared correctly
-//     }
-// }));
 
 
 db.connect((err) => {
@@ -522,12 +491,12 @@ app.get("/search", async (req, res) => {
         params.push(minRating);
       }
   
-      console.log("Final Query:", query);
-      console.log("Params:", params);
+      //console.log("Final Query:", query);
+      //console.log("Params:", params);
   
       const [movies] = await db.promise().query(query, params);
   
-      console.log(`Found ${movies.length} movies`);
+      //console.log(`Found ${movies.length} movies`);
       res.json(movies);
     } catch (error) {
       console.error("Search error:", error);
