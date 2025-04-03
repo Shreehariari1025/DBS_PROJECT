@@ -12,6 +12,7 @@ function UserProfile() {
     const [watchedRecently, setWatchedRecently] = useState([]); // Store watched movies
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userReviews, setUserReviews] = useState([]);
 
     useEffect(() => {
         if (user) {
@@ -38,8 +39,17 @@ function UserProfile() {
                 .catch((err) => {
                     console.error("Error fetching watch history:", err);
                 });
+             
+            fetch(`http://localhost:5000/getreviews/${user.id}`)
+                .then((res) => res.json())
+                .then((data) => setUserReviews(data))
+                .catch((err) => console.error("Error fetching reviews:", err));    
         }
     }, [user]);
+
+    const handleDeleteReview = (reviewId) => {
+        setUserReviews(userReviews.filter((review) => review.review_id !== reviewId));
+    };
 
     if (!user) {
         return <div className="text-red-500">Please log in first.</div>;
@@ -102,12 +112,15 @@ function UserProfile() {
 
             {/* Reviews Section */}
             <div className="bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
-                <div className="text-3xl font-[Montserrat] text-left">Reviews</div>
+                <div className="text-3xl font-[Montserrat] text-left">Your Reviews</div>
                 <div className="flex gap-2 items-center overflow-x-auto">
-                    <ReviewCard2 />
-                    <ReviewCard2 />
-                    <ReviewCard2 />
-                    <ReviewCard2 />
+                    {userReviews.length > 0 ? (
+                        userReviews.map((review) => (
+                            <ReviewCard2 key={review.review_id} review={review} onDelete={handleDeleteReview} />
+                        ))
+                    ) : (
+                        <p className="text-white">You haven't reviewed any movies yet.</p>
+                    )}
                 </div>
             </div>
 
@@ -128,17 +141,6 @@ function UserProfile() {
                 </div>
             </div>
 
-            {/* Favorite Movies Section */}
-            <div className="w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
-                <div className="text-3xl font-[Montserrat] text-left">Favorite movies</div>
-                <div className="flex gap-2 items-center overflow-x-auto">
-                    <MovieCard />
-                    <MovieCard />
-                    <MovieCard />
-                    <MovieCard />
-                    <MovieCard />
-                </div>
-            </div>
 
             <Footer />
         </div>

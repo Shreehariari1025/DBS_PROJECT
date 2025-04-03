@@ -563,6 +563,7 @@ app.get("/search", async (req, res) => {
       console.error("Search error:", error);
       res.status(500).json({ error: 'Failed to search movies' });
     }
+
   });
   
   app.post('/watch-now', async (req, res) => {
@@ -587,7 +588,56 @@ app.get("/search", async (req, res) => {
     }
 });
 
+app.get("/getreviews/:userId", async (req, res) => {
+    const { userId } = req.params;
 
+    try {
+        const [reviews] = await db.promise().query(
+            `SELECT r.review_id, r.movie_id, r.rating, r.review_text, r.review_date, 
+                    m.title, m.genre, i.image_url
+             FROM reviews r
+             JOIN movie m ON r.movie_id = m.movie_id
+             JOIN movieimages i ON i.movie_id = m.movie_id
+             WHERE r.user_id = ?`,
+            [userId]
+        );
+
+        if (reviews.length === 0) {
+            console.log(`No reviews found for user: ${userId}`);
+            return res.status(404).json({ error: "No reviews found" });
+        }
+
+        res.json(reviews);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+});
+
+app.delete("/deletereviews/:reviewId", async (req, res) => {
+    const { reviewId } = req.params;
+
+    try {
+        const [result] = await db.promise().query(
+            "DELETE FROM reviews WHERE review_id = ?",
+            [reviewId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Review not found" });
+        }
+
+        res.json({ message: "Review deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting review:", error);
+        res.status(500).json({ error: "Failed to delete review" });
+    }
+});
+
+
+app.use("*", (req, res) => {
+    res.status(404).json({ error: "Route not found" });
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;
