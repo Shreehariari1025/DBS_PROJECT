@@ -5,7 +5,8 @@ import Footer from '../components/Footer';
 import { FaStar } from 'react-icons/fa';
 import ReviewCard4 from '../components/ReviewCard4';
 import { useUser } from '../Pages/UserContext';
-
+import { Link } from 'react-router-dom';
+import Robot from '../assets/Robot.png'
 function Review() {
   const { movieId } = useParams();
   const { user } = useUser();
@@ -102,7 +103,19 @@ function Review() {
 
   return (
     <div className="pt-30 w-screen min-h-screen flex flex-col bg-black text-red-50">
-      <Navbar2 />
+      <div className="relative z-30 text-white font-[Inter]">
+                <div className="w-full h-20 bg-red-50/10 backdrop-blur-md fixed top-0 left-0 flex justify-between p-3 items-center">
+                    <div className="font-[Aclonica] text-xl">BhatFlix</div>
+                    <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
+                            <Link to="/dashboard">Home</Link>
+                            <Link to="/userprofile">
+                                <img className="h-10 w-10 rounded-full" src={Robot} alt="User Profile" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
       <div className="flex-grow">
         <div className="flex flex-wrap justify-between px-16 py-8">
