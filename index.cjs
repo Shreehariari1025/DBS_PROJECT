@@ -395,11 +395,13 @@ app.get("/user/:userId", async (req, res) => {
                 u.name, 
                 u.email, 
                 u.phone_no, 
-                c.password, 
                 ur.preferred_genre, 
-                ur.preferred_language
+                ur.preferred_language,
+                count(r.review_id) as rated,
+                count(w.movie_id) as watched
             FROM user u
-            JOIN credentials c ON u.user_id = c.user_id
+            join watchhistory w on w.user_id = u.user_id
+            join reviews r on r.user_id = u.user_id
             JOIN userPreferences ur ON ur.user_id = u.user_id  
             WHERE u.user_id = ?`,
             [userId]
@@ -675,6 +677,82 @@ app.get('/specificreview/:reviewId', async (req, res) => {
         console.error('Error fetching review:', error);
         res.status(500).json({ error: "Internal Server Error" });
     }
+});
+
+app.put('/update-user/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const {
+        name,
+        email,
+        phone_no,
+        preferred_genre,
+        preferred_language
+        
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !phone_no) {
+        return res.status(400).json({ error: 'Name, email, and phone number are required' });
+    }
+
+    // Start transaction
+    db.beginTransaction(err => {
+        if (err) {
+            console.error('Error starting transaction:', err);
+            return res.status(500).json({ error: 'Database error occurred' });
+        }
+
+        // Update User table
+        const updateUserQuery = `
+            UPDATE User 
+            SET name = ?, email = ?, phone_no = ?
+            WHERE user_id = ?
+        `;
+        
+        db.execute(updateUserQuery, [name, email, phone_no, userId], (err, result) => {
+            if (err) {
+                return db.rollback(() => {
+                    console.error('Error updating User:', err);
+                    res.status(500).json({ error: 'Failed to update user details' });
+                });
+            }
+
+            // Update or insert preferences
+            const upsertPrefsQuery = `
+                INSERT INTO UserPreferences (user_id, preferred_genre, preferred_language)
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    preferred_genre = VALUES(preferred_genre),
+                    preferred_language = VALUES(preferred_language)
+                    
+            `;
+            
+            db.execute(upsertPrefsQuery, [
+                userId,
+                preferred_genre,
+                preferred_language
+            ], (err, result) => {
+                if (err) {
+                    return db.rollback(() => {
+                        console.error('Error updating preferences:', err);
+                        res.status(500).json({ error: 'Failed to update preferences' });
+                    });
+                }
+
+                // Commit transaction
+                db.commit(err => {
+                    if (err) {
+                        return db.rollback(() => {
+                            console.error('Error committing transaction:', err);
+                            res.status(500).json({ error: 'Failed to save changes' });
+                        });
+                    }
+                    
+                    res.json({ success: true, message: 'Profile updated successfully' });
+                });
+            });
+        });
+    });
 });
 
 

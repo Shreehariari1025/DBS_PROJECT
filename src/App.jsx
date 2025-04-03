@@ -18,6 +18,7 @@ import Review from './Pages/Review';
 import { UserProvider } from './Pages/UserContext';
 import SearchPage from './Pages/SearchPage';
 import EditReview from './Pages/EditReview';
+import EditProfile from './Pages/EditProfile';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -34,6 +35,7 @@ function App() {
         <Route path="/review/:movieId" element={<Review />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/editreview/:reviewId" element={<EditReview />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
       </Routes>
     </UserProvider>
       

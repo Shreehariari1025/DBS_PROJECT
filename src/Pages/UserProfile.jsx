@@ -100,8 +100,8 @@ function UserProfile() {
                 </div>
                 <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2">
                     <div className="text-xl">Total movies</div>
-                    <div>Watched: {userData.watched_count || 0}</div>
-                    <div>Rated: {userData.rated_count || 0}</div>
+                    <div>Watched: {userData.watched || 0}</div>
+                    <div>Rated: {userData.rated || 0}</div>
                 </div>
                 <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2">
                     <div className="text-xl">Favorites</div>
@@ -109,6 +109,16 @@ function UserProfile() {
                     <div>Actress: {userData.favorite_actress || "Not specified"}</div>
                 </div>
             </div>
+
+            <div> 
+    <Link 
+        to="/edit-profile"
+        className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+    >
+        Edit Profile
+    </Link>
+</div>
+
 
             {/* Reviews Section */}
             <div className="bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
