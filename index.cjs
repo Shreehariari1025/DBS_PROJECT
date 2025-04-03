@@ -535,6 +535,27 @@ app.get("/search", async (req, res) => {
     }
   });
   
+  app.post('/watch-now', async (req, res) => {
+    try {
+        const { user_id, movie_id } = req.body;
+        if (!user_id || !movie_id) {
+            return res.status(400).json({ message: "User ID and Movie ID are required" });
+        }
+
+        // Insert into watch history (avoid duplicate entries)
+        const [rows] = await db.promise().query(`
+            INSERT INTO watchhistory (user_id, movie_id, watch_date)
+            VALUES (?, ?, NOW())
+            ON DUPLICATE KEY UPDATE watch_date = NOW()`, 
+            [user_id, movie_id]
+        );
+
+        res.json({ message: "Watch history updated successfully" });
+    } catch (err) {
+        console.error("Error updating watch history:", err);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
 
 
   

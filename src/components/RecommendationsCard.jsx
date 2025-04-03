@@ -39,7 +39,7 @@ function RecommendationsCard({ movieId }) {
                 {/* More Info Button */}
                 <div className="flex justify-center items-center text-black text-sm px-2 absolute bottom-3">
                     <button
-                        className="w-90 h-10  bg-white rounded-2xl"
+                        className="lg:w-90 h-10 md:w-48 bg-white rounded-2xl"
                         onClick={() => navigate(`/individualmovie/${movieId}`)} // Navigate to movie details page
                     >
                         More info

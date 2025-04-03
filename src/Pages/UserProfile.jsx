@@ -120,11 +120,6 @@ function UserProfile() {
                             <MovieCard
                                 key={movie.movie_id}
                                 movieId={movie.movie_id}
-                                title={movie.title}
-                                genre={movie.genre}
-                                releaseYear={movie.release_year}
-                                imageUrl={movie.image_url}
-                                avgRating={movie.avg_rating}
                             />
                         ))
                     ) : (
