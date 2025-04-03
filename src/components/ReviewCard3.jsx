@@ -16,8 +16,7 @@ function ReviewCard3({ review }) {
       {/* Review Heading */}
       <div className='text-xl text-left'>{review.review_heading}</div>
 
-      {/* Read More Button */}
-      <button className='text-black w-44 h-10 bg-red-600 rounded-xl'>Read more</button>
+     
     </div>
   );
 }

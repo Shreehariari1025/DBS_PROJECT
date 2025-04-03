@@ -84,7 +84,7 @@ app.get("/movies/:id", async (req, res) => {
    // console.log(`Fetching movie with ID: ${id}`);  // Log request
     
     try {
-        const [movie] = await db.promise().query("SELECT m.title, m.genre, m.release_year, i.image_url, round(avg(r.rating),1) as avg_rating FROM movie m JOIN movieimages i on i.movie_id= m.movie_id join reviews r on r.movie_id = m.movie_id WHERE m.movie_id = ? group by m.title, m.genre, m.release_year, i.image_url", [id]);
+        const [movie] = await db.promise().query("SELECT m.title, m.genre, m.release_year, CONCAT('/', i.image_url) AS image_url, round(avg(r.rating),1) as avg_rating FROM movie m JOIN movieimages i on i.movie_id= m.movie_id join reviews r on r.movie_id = m.movie_id WHERE m.movie_id = ? group by m.title, m.genre, m.release_year, i.image_url", [id]);
         
        // console.log("Query Result:", movie);  // Log DB response
         
@@ -274,28 +274,109 @@ app.get('/similar-movies/:movie_id', (req, res) => {
   });
   
   // Get Reviews by Movie ID
-app.get('/reviews/:movie_id', (req, res) => {
-    const movieId = req.params.movie_id;
+  app.get("/reviews/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [reviews] = await db.promise().query(`
+            SELECT r.*, u.name as user_name 
+            FROM reviews r
+            JOIN user u ON r.user_id = u.user_id
+            WHERE r.movie_id = ?
+            ORDER BY r.review_date DESC
+        `, [id]);
+        res.json(reviews);
+    } catch (error) {
+        console.error("Error fetching reviews:", error);
+        res.status(500).json({ error: 'Failed to fetch reviews' });
+    }
+});
+
+app.post('/sendreviews', (req, res) => {
+    const { user_id, movie_id, review_heading, review_text, rating } = req.body;
   
-    const query = `
-      SELECT review_id, review_heading, review_text, review_date, rating, user_id
-      FROM reviews
-      WHERE movie_id = ?;
-    `;
+    // Validate required fields
+    if (!user_id || !movie_id || !review_heading || !review_text || !rating) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
   
-    db.query(query, [movieId], (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: 'Database query error' });
-      }
-  
-      if (results.length === 0) {
-        return res.status(404).json({ error: 'No reviews found for this movie' });
-      }
-  
-      res.json({ reviews: results });
+    console.log({
+      user_id,
+      movie_id,
+      review_heading,
+      review_text,
+      rating
     });
-  });
   
+    // Step 1: Verify user exists
+    const userCheckQuery = `SELECT user_id FROM User WHERE user_id = ?`;
+    
+    db.execute(userCheckQuery, [user_id], (err, userResult) => {
+      if (err) {
+        console.error('Error checking user:', err);
+        return res.status(500).json({ error: 'Database error occurred' });
+      }
+  
+      if (userResult.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Step 2: Verify movie exists
+      const movieCheckQuery = `SELECT movie_id FROM movie WHERE movie_id = ?`;
+      
+      db.execute(movieCheckQuery, [movie_id], (err, movieResult) => {
+        if (err) {
+          console.error('Error checking movie:', err);
+          return res.status(500).json({ error: 'Database error occurred' });
+        }
+  
+        if (movieResult.length === 0) {
+          return res.status(404).json({ error: 'Movie not found' });
+        }
+  
+        // Step 3: Insert the review
+        const reviewQuery = `
+          INSERT INTO reviews 
+          (user_id, movie_id, review_heading, review_text, rating, review_date)
+          VALUES (?, ?, ?, ?, ?, NOW())
+        `;
+  
+        db.execute(reviewQuery, 
+          [user_id, movie_id, review_heading, review_text, rating], 
+          (err, reviewResult) => {
+            if (err) {
+              console.error('Error inserting review:', err);
+              return res.status(500).json({ error: 'Failed to add review' });
+            }
+  
+            // Step 4: Update movie average rating (optional)
+            const updateRatingQuery = `
+              UPDATE movies 
+              SET avg_rating = (
+                SELECT AVG(rating) 
+                FROM reviews 
+                WHERE movie_id = ?
+              ) 
+              WHERE movie_id = ?
+            `;
+  
+            db.execute(updateRatingQuery, [movie_id, movie_id], (err, updateResult) => {
+              if (err) {
+                console.error('Error updating movie rating:', err);
+                // Don't fail the request - just log the error
+              }
+  
+              // Successfully inserted review
+              res.status(201).json({ 
+                message: 'Review added successfully',
+                review_id: reviewResult.insertId
+              });
+            });
+          }
+        );
+      });
+    });
+});
+
   app.get('/moviedetails/:movieId', (req, res) => {
     const movieId = req.params.movieId;
 
@@ -527,7 +608,7 @@ app.get("/search", async (req, res) => {
 });
 
 
-  
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

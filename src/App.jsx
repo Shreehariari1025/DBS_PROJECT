@@ -30,7 +30,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/userprofile" element={<UserProfile />} />
         <Route path="/individualmovie/:movieId" element={<IndividualMovie/>} />
-        <Route path="/review" element={<Review/>} />
+        <Route path="/review/:movieId" element={<Review />} />
         <Route path="/search" element={<SearchPage />} />
       </Routes>
     </UserProvider>

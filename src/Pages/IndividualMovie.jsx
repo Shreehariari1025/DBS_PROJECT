@@ -6,8 +6,10 @@ import ReviewCard3 from '../components/ReviewCard3';
 import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
 import { useUser } from "../Pages/UserContext";
+import { useNavigate } from 'react-router-dom';
 
 function IndividualMovie() {
+  const navigate=useNavigate();
   const { movieId } = useParams();
   const [movieDetails, setMovieDetails] = useState(null);
   const [actors, setActors] = useState([]);
@@ -17,6 +19,16 @@ function IndividualMovie() {
   const [recentlyWatched, setRecentlyWatched] = useState([]);
 
   const { user }= useUser(); // Replace with actual user ID
+
+  const handleReviewClick = () => {
+    if (!user?.id) {
+      console.log("User not logged in - redirecting to login");
+      navigate('/signin');
+      return;
+    }
+    console.log("Navigating to review page for movie:", movieId);
+    navigate(`/review/${movieId}`);
+  };
 
   useEffect(() => {
     if (!movieId) return;
@@ -41,10 +53,16 @@ function IndividualMovie() {
       .then(data => setSimilarMovies(data.similar_movies || []))
       .catch(err => console.error("Error fetching similar movies:", err));
 
-    fetch(`http://localhost:5000/reviews/${movieId}`)
+      fetch(`http://localhost:5000/reviews/${movieId}`)
       .then(res => res.json())
-      .then(data => setReviews(data.reviews || []))
-      .catch(err => console.error("Error fetching reviews:", err));
+      .then(data => {
+        // Remove .reviews since your endpoint returns array directly
+        setReviews(data || []);
+      })
+      .catch(err => {
+        console.error("Error fetching reviews:", err);
+        setReviews([]);
+      });
   }, [movieId]);
 
   const handleWatchNow = async () => {
@@ -75,6 +93,8 @@ function IndividualMovie() {
 
 
   return (
+    
+
     <div className='w-screen h-screen relative font-[Inter] text-red-50 bg-gradient-to-br from-black to-red-950'>
       <Navbar2 />
 
@@ -101,9 +121,11 @@ function IndividualMovie() {
                   >
                     Watch
                   </button>
-                  <button className='w-28 h-10 rounded-2xl outline outline-white text-red-50/75 bg-inherit'>
-                    Review
-                  </button>
+                  <button  className='w-28 h-10 rounded-2xl outline outline-white text-red-50/75 bg-inherit hover:bg-red-900/30 transition'
+    onClick={handleReviewClick}
+  >
+    Review
+  </button>
                 </div>
               </div>
             </div>

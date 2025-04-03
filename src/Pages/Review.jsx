@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Navbar2 from '../components/Navbar2';
 import Footer from '../components/Footer';
 import { FaStar } from 'react-icons/fa';
@@ -8,7 +8,6 @@ import { useUser } from '../Pages/UserContext';
 
 function Review() {
   const { movieId } = useParams();
-  const navigate = useNavigate();
   const { user } = useUser();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(null);
@@ -18,36 +17,27 @@ function Review() {
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState('');
 
-  // Fetch movie details
+  // Fetch movie and reviews data
   useEffect(() => {
-    const fetchMovie = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/movies/${movieId}`);
-        if (!response.ok) throw new Error('Failed to fetch movie');
-        const data = await response.json();
-        setMovie(data);
+        // Fetch movie details
+        const movieResponse = await fetch(`http://localhost:5000/movies/${movieId}`);
+        if (!movieResponse.ok) throw new Error('Failed to fetch movie');
+        const movieData = await movieResponse.json();
+        setMovie(movieData);
+
+        // Fetch reviews
+        const reviewsResponse = await fetch(`http://localhost:5000/reviews/${movieId}`);
+        if (!reviewsResponse.ok) throw new Error('Failed to fetch reviews');
+        const reviewsData = await reviewsResponse.json();
+        setReviews(reviewsData);
       } catch (err) {
         setError(err.message);
       }
     };
 
-    fetchMovie();
-  }, [movieId]);
-
-  // Fetch existing reviews
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/movies/${movieId}/reviews`);
-        if (!response.ok) throw new Error('Failed to fetch reviews');
-        const data = await response.json();
-        setReviews(data);
-      } catch (err) {
-        console.error('Error fetching reviews:', err);
-      }
-    };
-
-    fetchReviews();
+    fetchData();
   }, [movieId]);
 
   const handleSubmit = async (e) => {
@@ -64,13 +54,13 @@ function Review() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/reviews', {
+      const response = await fetch('http://localhost:5000/sendreviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: user.user_id,
+          user_id: user.id,
           movie_id: movieId,
           review_heading: headline,
           review_text: content,
@@ -84,7 +74,7 @@ function Review() {
       }
 
       // Refresh reviews after successful submission
-      const newResponse = await fetch(`http://localhost:5000/movies/${movieId}/reviews`);
+      const newResponse = await fetch(`http://localhost:5000/reviews/${movieId}`);
       const newData = await newResponse.json();
       setReviews(newData);
       
@@ -93,7 +83,6 @@ function Review() {
       setContent('');
       setRating(0);
       setError('');
-      
     } catch (err) {
       setError(err.message);
     }
@@ -121,7 +110,7 @@ function Review() {
           <div className="w-full md:w-1/2 flex flex-col space-y-6">
             <h1 className="text-3xl font-semibold">Review</h1>
 
-            {error && <p className="text-red-500">{error}</p>}
+             <p className="text-red-500">{error}</p>
 
             <div>
               <label className="text-xl font-medium block text-left">Headline</label>
