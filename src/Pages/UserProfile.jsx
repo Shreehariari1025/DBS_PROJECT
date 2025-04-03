@@ -8,24 +8,18 @@ import Robot from "../assets/Robot.png";
 
 function UserProfile() {
     const { user } = useUser(); // Get the logged-in user (contains user ID)
-    const [userData, setUserData] = useState(true);
+    const [userData, setUserData] = useState(null);
+    const [watchedRecently, setWatchedRecently] = useState([]); // Store watched movies
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (user) {
+            // Fetch user details
             fetch(`http://localhost:5000/user/${user.id}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log("Fetched user data:", data);
-    
-                    // Ensure data is set correctly
-                    if (data && typeof data === "object") {
-                        setUserData(data);
-                    } else {
-                        console.error("Unexpected API response structure:", data);
-                    }
-    
+                    setUserData(data);
                     setLoading(false);
                 })
                 .catch((err) => {
@@ -33,13 +27,19 @@ function UserProfile() {
                     setError("Failed to fetch user data.");
                     setLoading(false);
                 });
+
+            // Fetch watch history
+            fetch(`http://localhost:5000/watch-history/${user.id}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("Fetched watch history:", data);
+                    setWatchedRecently(data);
+                })
+                .catch((err) => {
+                    console.error("Error fetching watch history:", err);
+                });
         }
     }, [user]);
-    
-
-    {console.log("Rendering UserProfile with userData:", userData)}
-
-    
 
     if (!user) {
         return <div className="text-red-500">Please log in first.</div>;
@@ -55,6 +55,7 @@ function UserProfile() {
 
     return (
         <div className="w-screen h-screen font-[Inter] bg-gradient-to-br from-black to-red-950 text-red-50">
+            {/* Navbar */}
             <div className="relative z-30 text-white font-[Inter]">
                 <div className="w-full h-20 bg-red-50/10 backdrop-blur-md fixed top-0 left-0 flex justify-between p-3 items-center">
                     <div className="font-[Aclonica] text-xl">BhatFlix</div>
@@ -69,23 +70,23 @@ function UserProfile() {
                 </div>
             </div>
 
+            {/* User Info */}
             <div className="px-20 pt-30 flex flex-col items-left gap-2 text-left">
                 <div className="font-[Montserrat] text-left text-2xl font-medium">{userData?.name || "N/A"}</div>
             </div>
 
+            {/* User Details */}
             <div className="grid grid-cols-3 p-20 gap-2 text-red-950 bg-gradient-to-br from-stone-950 to-black">
                 <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2 row-span-2 relative">
                     <div className="text-xl">Personal details</div>
                     <div>Name: {userData.name}</div>
                     <div>Email: {userData.email}</div>
                     <div>Phone No: {userData.phone_no || "Not provided"}</div>
-                    <i className="fa-solid fa-pen-to-square absolute top-2 right-2 hover:cursor-pointer" style={{ color: "#000000" }}></i>
                 </div>
                 <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2 col-span-2 relative">
                     <div className="text-xl">Preferences</div>
                     <div>Preferred languages: {userData.preferred_language?.join(", ") || "Not specified"}</div>
                     <div>Preferred genres: {userData.preferred_genre?.join(", ") || "Not specified"}</div>
-                    <i className="fa-solid fa-pen-to-square absolute top-2 right-2 hover:cursor-pointer" style={{ color: "#000000" }}></i>
                 </div>
                 <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2">
                     <div className="text-xl">Total movies</div>
@@ -99,6 +100,7 @@ function UserProfile() {
                 </div>
             </div>
 
+            {/* Reviews Section */}
             <div className="bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
                 <div className="text-3xl font-[Montserrat] text-left">Reviews</div>
                 <div className="flex gap-2 items-center overflow-x-auto">
@@ -109,17 +111,29 @@ function UserProfile() {
                 </div>
             </div>
 
-            <div className="w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
-                <div className="text-3xl font-[Montserrat] text-left">Recently watched</div>
+            {/* Watched Recently Section */}
+            <div id="watched-recently" className="bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
+                <div className="text-3xl font-[Montserrat] text-left">Watched Recently</div>
                 <div className="flex gap-2 items-center overflow-x-auto">
-                    <MovieCard />
-                    <MovieCard />
-                    <MovieCard />
-                    <MovieCard />
-                    <MovieCard />
+                    {watchedRecently.length > 0 ? (
+                        watchedRecently.map((movie) => (
+                            <MovieCard
+                                key={movie.movie_id}
+                                movieId={movie.movie_id}
+                                title={movie.title}
+                                genre={movie.genre}
+                                releaseYear={movie.release_year}
+                                imageUrl={movie.image_url}
+                                avgRating={movie.avg_rating}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-white">No recently watched movies available.</p>
+                    )}
                 </div>
             </div>
 
+            {/* Favorite Movies Section */}
             <div className="w-full bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20">
                 <div className="text-3xl font-[Montserrat] text-left">Favorite movies</div>
                 <div className="flex gap-2 items-center overflow-x-auto">

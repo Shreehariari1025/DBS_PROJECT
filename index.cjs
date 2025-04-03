@@ -185,36 +185,7 @@ app.post('/register', (req, res) => {
 
   
 
-  
-  // Updated API using JWT authentication
-  app.get("/recommended", (req, res) => {
-    const userId = req.query.user_id; // Get user_id from frontend request
 
-    if (!userId) {
-        return res.status(400).json({ error: "User ID is required" });
-    }
-
-    const query = `
-        SELECT r.movie_id, r.title, r.genre, r.language, 
-               AVG(re.rating) AS avg_rating, m.image_url, movie.release_year 
-        FROM RecommendedMovies r
-        JOIN movie ON movie.movie_id = r.movie_id
-        JOIN reviews re ON re.movie_id = r.movie_id
-        JOIN movieimages m ON m.movie_id = r.movie_id
-        WHERE r.user_id = ? 
-        GROUP BY r.movie_id, r.title, r.genre, r.language, m.image_url, movie.release_year
-    `;
-
-    db.query(query, [userId], (err, results) => {
-        if (err) {
-            console.error("Error fetching recommended movies:", err);
-            return res.status(500).json({ error: "Internal Server Error" });
-        }
-
-        console.log("Recommended Movies for User ID:", userId, results);
-        res.json(results);
-    });
-});
 
 
   
@@ -252,11 +223,7 @@ app.get('/trending', (req, res) => {
     });
   });
   
-  // A simple test route
-app.get('/test', (req, res) => {
-    console.log('Test route hit!');
-    res.send('Test successful');
-  });
+
   
   
   // Get Actors by Movie ID
@@ -429,8 +396,145 @@ app.get("/user/:userId", async (req, res) => {
     }
 });
 
+  
+  // Updated API using JWT authentication
+  app.get("/recommended", (req, res) => {
+    const userId = req.query.user_id; // Get user_id from frontend request
 
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
 
+    const query = `
+        SELECT r.movie_id, r.title, r.genre, r.language, 
+               AVG(re.rating) AS avg_rating, m.image_url, movie.release_year 
+        FROM RecommendedMovies r
+        JOIN movie ON movie.movie_id = r.movie_id
+        JOIN reviews re ON re.movie_id = r.movie_id
+        JOIN movieimages m ON m.movie_id = r.movie_id
+        WHERE r.user_id = ? 
+        GROUP BY r.movie_id, r.title, r.genre, r.language, m.image_url, movie.release_year
+    `;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error("Error fetching recommended movies:", err);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+
+        console.log("Recommended Movies for User ID:", userId, results);
+        res.json(results);
+    });
+});
+
+app.get("/watch-history/:userId", async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const [movies] = await db.promise().query(
+            `SELECT m.movie_id, m.title, m.genre, m.release_year, i.image_url, 
+                    ROUND(AVG(r.rating), 1) AS avg_rating 
+             FROM watchhistory wh
+             JOIN movie m ON wh.movie_id = m.movie_id
+             JOIN movieimages i ON i.movie_id = m.movie_id
+             LEFT JOIN reviews r ON r.movie_id = m.movie_id
+             WHERE wh.user_id = ?
+             GROUP BY m.movie_id, m.title, m.genre, m.release_year, i.image_url`,
+            [userId]
+        );
+
+        if (movies.length === 0) {
+            console.log("No watch history found for user:", userId);
+            return res.status(404).json({ error: "No watch history found" });
+        }
+
+        res.json(movies);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ error: "Failed to fetch watch history" });
+    }
+});
+
+app.get("/search", async (req, res) => {
+    const { q, genre, language, minRating, year } = req.query;
+    
+    console.log(`Search request - Query: ${q}, Filters:`, {
+      genre,
+      language,
+      minRating,
+      year
+    });
+  
+    try {
+      // Base query
+      let query = `
+        SELECT DISTINCT 
+          m.movie_id,
+          m.title, 
+          m.genre, 
+          m.release_year, 
+          m.language,
+          mi.image_url,
+          ROUND(AVG(r.rating),1) AS avg_rating
+        FROM movie m
+        JOIN movieimages mi ON mi.movie_id = m.movie_id
+        LEFT JOIN reviews r ON r.movie_id = m.movie_id
+      `;
+  
+      // WHERE conditions array
+      const conditions = [];
+      const params = [];
+  
+      // Search term
+      if (q) {
+        conditions.push("(m.title LIKE ? OR m.description LIKE ?)");
+        params.push(`%${q}%`, `%${q}%`);
+      }
+  
+      // Genre filter
+      if (genre) {
+        conditions.push("m.genre = ?");
+        params.push(genre);
+      }
+  
+      // Language filter
+      if (language) {
+        conditions.push("m.language = ?");
+        params.push(language);
+      }
+  
+      // Year filter
+      if (year) {
+        conditions.push("YEAR(m.release_year) = ?");
+        params.push(year);
+      }
+  
+      // Add WHERE clause if any conditions exist
+      if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+      }
+  
+      // Group by and rating filter
+      query += " GROUP BY m.movie_id, m.title, m.genre, m.release_year, m.language, mi.image_url";
+      
+      if (minRating) {
+        query += " HAVING avg_rating >= ?";
+        params.push(minRating);
+      }
+  
+      console.log("Final Query:", query);
+      console.log("Params:", params);
+  
+      const [movies] = await db.promise().query(query, params);
+  
+      console.log(`Found ${movies.length} movies`);
+      res.json(movies);
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ error: 'Failed to search movies' });
+    }
+  });
+  
 
 
   

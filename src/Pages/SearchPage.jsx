@@ -1,57 +1,83 @@
-SearchPage.jsx
-
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import MovieCard from '../components/MovieCard';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import MovieCard from "../components/MovieCard";
+import Robot from "../assets/Robot.png";
 
 function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
   const [filters, setFilters] = useState({
-    genre: '',
-    language: '',
+    genre: "",
+    language: "",
     minRating: 0,
-    year: ''
+    year: "",
   });
+
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Fetch search query and filters from URL on load
   useEffect(() => {
-    // Get initial search query from URL if coming from dashboard
     const params = new URLSearchParams(location.search);
-    const query = params.get('q') || '';
+    const query = params.get("q") || "";
+    const genre = params.get("genre") || "";
+    const language = params.get("language") || "";
+    const minRating = params.get("minRating") || 0;
+    const year = params.get("year") || "";
+
     setSearchQuery(query);
-    searchMovies(query, filters);
+    setFilters({ genre, language, minRating: Number(minRating), year });
+
+    fetchMovies(query, { genre, language, minRating, year });
   }, [location.search]);
 
-  const searchMovies = async (query, filters) => {
+  // Function to fetch movies from search API
+  const fetchMovies = async (query, filters) => {
+    setLoading(true);
+    setError(null);
+
     try {
-      // Construct query params
       const params = new URLSearchParams({
         q: query,
-        ...filters
+        genre: filters.genre,
+        language: filters.language,
+        minRating: filters.minRating,
+        year: filters.year,
       }).toString();
 
       const response = await fetch(`http://localhost:5000/search?${params}`);
+      if (!response.ok) throw new Error("Failed to fetch movies");
+
       const data = await response.json();
       setMovies(data);
     } catch (error) {
       console.error("Search error:", error);
+      setError("Could not fetch search results.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Handle filter input changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Apply search & filters, updating the URL
   const applyFilters = () => {
-    searchMovies(searchQuery, filters);
-    // Update URL without reload
-    navigate(`/search?q=${searchQuery}&genre=${filters.genre}&language=${filters.language}&minRating=${filters.minRating}&year=${filters.year}`, { replace: true });
+    const params = new URLSearchParams({
+      q: searchQuery,
+      genre: filters.genre,
+      language: filters.language,
+      minRating: filters.minRating,
+      year: filters.year,
+    }).toString();
+
+    navigate(`/search?${params}`, { replace: true });
   };
 
   return (
@@ -63,7 +89,7 @@ function SearchPage() {
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && applyFilters()}
+            onKeyDown={(e) => e.key === "Enter" && applyFilters()}
             className="bg-stone-800 border border-stone-700 rounded-full py-3 px-6 w-full max-w-2xl focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="Search for movies..."
           />
@@ -84,7 +110,14 @@ function SearchPage() {
                 <option value="">All Genres</option>
                 <option value="Action">Action</option>
                 <option value="Comedy">Comedy</option>
-                {/* Add more genres */}
+                <option value="Romance">Romance</option>
+                <option value="Historical">Historical</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Sports">Sports</option>
+                <option value="Drama">Drama</option>
+                <option value="Thriller">Thriller</option>
               </select>
             </div>
 
@@ -99,7 +132,10 @@ function SearchPage() {
                 <option value="">All Languages</option>
                 <option value="English">English</option>
                 <option value="Hindi">Hindi</option>
-                {/* Add more languages */}
+                <option value="Kannada">Kannada</option>
+                <option value="Telugu">Telugu</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Malayalam">Malayalam</option>
               </select>
             </div>
 
@@ -112,25 +148,13 @@ function SearchPage() {
                 className="w-full bg-stone-800 border border-stone-700 rounded-md p-2"
               >
                 <option value="0">Any Rating</option>
-                <option value="3">3+ Stars</option>
-                <option value="4">4+ Stars</option>
-                <option value="4.5">4.5+ Stars</option>
+                <option value="5">5+ Stars</option>
+                <option value="7">7+ Stars</option>
+                <option value="8.5">8.5+ Stars</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Release Year</label>
-              <input
-                type="number"
-                name="year"
-                value={filters.year}
-                onChange={handleFilterChange}
-                placeholder="Year"
-                className="w-full bg-stone-800 border border-stone-700 rounded-md p-2"
-                min="1900"
-                max={new Date().getFullYear()}
-              />
-            </div>
+           
           </div>
           <button
             onClick={applyFilters}
@@ -140,17 +164,25 @@ function SearchPage() {
           </button>
         </div>
 
-        {/* Results */}
+        {/* Search Results */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Search Results</h2>
-          {movies.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {movies.map(movie => (
+          {loading ? (
+            <p className="text-red-400">Loading...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : movies.length > 0 ? (
+            <div className="flex flex-wrap gap-6 justify-start">
+              {movies.map((movie) => (
                 <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
               ))}
             </div>
           ) : (
-            <p className="text-stone-400">No movies found. Try different search terms or filters.</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <img src={Robot} alt="No results" className="w-32 h-32 opacity-70 mb-4" />
+              <p className="text-stone-400 text-lg">No movies found matching your search</p>
+              <p className="text-stone-500 text-sm">Try different keywords or adjust filters</p>
+            </div>
           )}
         </div>
       </div>

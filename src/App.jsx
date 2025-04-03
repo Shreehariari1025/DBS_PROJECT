@@ -16,6 +16,7 @@ import ReviewCard2 from './components/ReviewCard2'
 import IndividualMovie from './Pages/IndividualMovie';
 import Review from './Pages/Review';
 import { UserProvider } from './Pages/UserContext';
+import SearchPage from './Pages/SearchPage';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -30,6 +31,7 @@ function App() {
         <Route path="/userprofile" element={<UserProfile />} />
         <Route path="/individualmovie/:movieId" element={<IndividualMovie/>} />
         <Route path="/review" element={<Review/>} />
+        <Route path="/search" element={<SearchPage />} />
       </Routes>
     </UserProvider>
       
