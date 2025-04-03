@@ -588,12 +588,13 @@ app.get("/search", async (req, res) => {
     }
 });
 
+//Based on userID
 app.get("/getreviews/:userId", async (req, res) => {
     const { userId } = req.params;
 
     try {
         const [reviews] = await db.promise().query(
-            `SELECT r.review_id, r.movie_id, r.rating, r.review_text, r.review_date, 
+            `SELECT r.review_id, r.movie_id, r.rating, r.review_text, r.review_date, r.review_heading, 
                     m.title, m.genre, i.image_url
              FROM reviews r
              JOIN movie m ON r.movie_id = m.movie_id
@@ -633,6 +634,50 @@ app.delete("/deletereviews/:reviewId", async (req, res) => {
         res.status(500).json({ error: "Failed to delete review" });
     }
 });
+
+app.put("/editreview/:reviewId", async (req, res) => {
+    const { reviewId } = req.params;
+    const { review_heading, review_text, rating } = req.body;
+
+    try {
+        const [result] = await db.promise().query(
+            "UPDATE reviews SET review_heading = ?, review_text = ?, rating = ? WHERE review_id = ?",
+            [review_heading, review_text, rating, reviewId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Review not found" });
+        }
+
+        res.json({ message: "Review updated successfully" });
+    } catch (error) {
+        console.error("Error updating review:", error);
+        res.status(500).json({ error: "Failed to update review" });
+    }
+});
+
+app.get('/specificreview/:reviewId', async (req, res) => {
+    const { reviewId } = req.params;
+
+    try {
+        console.log("Fetching review with ID:", reviewId); // Debugging
+        const query = 'SELECT * FROM reviews WHERE review_id = ?';
+        const [review] = await db.promise().execute(query, [reviewId]);
+
+        console.log("Review Query Result:", review); // Debugging
+
+        if (review.length === 0) {
+            return res.status(404).json({ error: "Review not found" });
+        }
+
+        res.json(review[0]);
+    } catch (error) {
+        console.error('Error fetching review:', error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
 
 
 app.use("*", (req, res) => {

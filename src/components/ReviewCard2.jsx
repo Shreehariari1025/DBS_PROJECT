@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function ReviewCard2({ review, onDelete }) {
+    const navigate = useNavigate(); // ✅ Initialize navigation
+
     const handleDelete = async () => {
         if (!window.confirm("Are you sure you want to delete this review?")) return;
 
@@ -20,6 +23,10 @@ function ReviewCard2({ review, onDelete }) {
         }
     };
 
+    const handleEdit = () => {
+        navigate(`/editreview/${review.review_id}`); // ✅ Navigate to EditReview page
+    };
+
     return (
         <div>
             <div className="lg:w-96 sm:w-60 h-96 bg-gradient-to-br from-black to-red-950 rounded-2xl text-red-50 font-[Inter] relative">
@@ -33,11 +40,13 @@ function ReviewCard2({ review, onDelete }) {
 
                 <div className="flex flex-col px-2 justify-evenly">
                     <div className="text-left text-red-50/60 text-sm">Reviewed on {new Date(review.review_date).toLocaleDateString()}</div>
-                    <div className="lg:text-xl sm:text-sm text-left">{review.review_text}</div>
+                    <div className="lg:text-xl sm:text-sm text-left">{review.review_heading}</div>
                 </div>
 
                 <div className="flex justify-evenly items-center text-black text-sm px-2 absolute bottom-3 gap-3">
-                    <button className="lg:w-44 sm:w-25 h-10 bg-red-600 rounded-2xl">Edit review</button>
+                    <button className="lg:w-44 sm:w-25 h-10 bg-red-600 rounded-2xl" onClick={handleEdit}>
+                        Edit review
+                    </button>
                     <button className="lg:w-44 sm:w-25 h-10 bg-white rounded-2xl" onClick={handleDelete}>
                         Delete review
                     </button>
