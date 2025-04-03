@@ -16,9 +16,9 @@ function Navbar2() {
         <div className='flex gap-3'>
         <div className='flex gap-3 items-center'>
 
-       <div  onClick={()=>{scrollToSection("watchedrecently")}} className='hover:cursor-pointer'>Watched Recently</div>
-       <div onClick={()=>{scrollToSection("toprated")}} className='hover:cursor-pointer'>Top Rated</div>
-       <div onClick={()=>{scrollToSection("trending2")}}className='hover:cursor-pointer'>Trending</div>
+       <div  onClick={()=>{scrollToSection("watched-recently")}} className='hover:cursor-pointer'>Watched Recently</div>
+       <div onClick={()=>{scrollToSection("top-rated")}} className='hover:cursor-pointer'>Top Rated</div>
+       <div onClick={()=>{scrollToSection("trending")}}className='hover:cursor-pointer'>Trending</div>
        <div onClick={()=>{scrollToSection("recommendations")}}className='hover:cursor-pointer'>Recommendations</div>
             <Link to="/userprofile">
             <img  className='h-10 w-10 rounded-full'src={Robot} alt="" /></Link>
