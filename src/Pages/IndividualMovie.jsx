@@ -145,14 +145,19 @@ function IndividualMovie() {
         </div>
       </div>
 
-      <div className='bg-gradient-to-br from-black to-red-950 p-15'>
-        <div className='text-3xl font-[Montserrat] text-left'>Similar Movies</div>
-        <div className='flex gap-2 h-75 items-center overflow-x-auto'>
-          {similarMovies.map(movie => (
-            <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
-          ))}
-        </div>
-      </div>
+      {/* Similar Movies Section */}
+<div className='bg-gradient-to-br from-black to-red-950 p-15'>
+  <div className='text-3xl font-[Montserrat] text-left'>Similar Movies</div>
+  <div className='flex gap-2 h-75 items-center overflow-x-auto'>
+    {similarMovies.length > 0 ? (
+      similarMovies.map(movie => (
+        <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
+      ))
+    ) : (
+      <p className='text-white'>No similar movies available.</p>
+    )}
+  </div>
+</div>
 
       
 

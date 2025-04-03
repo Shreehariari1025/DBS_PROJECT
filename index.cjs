@@ -390,7 +390,7 @@ app.get("/user/:userId", async (req, res) => {
             return res.status(500).json({ error: "Internal Server Error" });
         }
 
-        console.log("Recommended Movies for User ID:", userId, results);
+       // console.log("Recommended Movies for User ID:", userId, results);
         res.json(results);
     });
 });
@@ -416,12 +416,15 @@ app.get("/watch-history/:userId", async (req, res) => {
             return res.status(404).json({ error: "No watch history found" });
         }
 
-        res.json(movies);
+        
+
+        res.json(movies); // Return array if multiple movies exist
     } catch (error) {
         console.error("Database error:", error);
         res.status(500).json({ error: "Failed to fetch watch history" });
     }
 });
+
 
 app.get("/search", async (req, res) => {
     const { q, genre, language, minRating, year } = req.query;
