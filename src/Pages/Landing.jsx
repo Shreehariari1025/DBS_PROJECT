@@ -16,6 +16,9 @@ function Landing() {
         .then((res) => res.json())
         .then((data) => setTrendingMovies(data))
         .catch((err) => console.error("Error fetching trending movies:", err));
+
+        localStorage.removeItem("user");
+        
       }, []);
 
   return (

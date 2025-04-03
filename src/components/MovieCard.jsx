@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-  // Import useNavigate
+import { useUser } from "../Pages/UserContext";  // Import useUser
 import Robot from '../assets/Robot.png';
 
 function MovieCard({ movieId }) {
   const [movie, setMovie] = useState(null);
-  const navigate = useNavigate();  // Initialize navigate function
+  const navigate = useNavigate();
+  const { user } = useUser();  // Get logged-in user info
 
   useEffect(() => {
     fetch(`http://localhost:5000/movies/${movieId}`)
@@ -13,6 +14,14 @@ function MovieCard({ movieId }) {
       .then(data => setMovie(data))
       .catch(err => console.error('Error fetching movie:', err));
   }, [movieId]);
+
+  const handleMoreInfo = () => {
+    if (user) {
+      navigate(`/individualmovie/${movieId}`);
+    } else {
+      navigate("/signin");  // Redirect to sign-in page if not logged in
+    }
+  };
 
   if (!movie) return <div>Loading...</div>;
 
@@ -40,7 +49,7 @@ function MovieCard({ movieId }) {
         <div className='flex justify-center'>
           <button 
             className='w-44 h-8 p-3 flex justify-center items-center rounded-xl bg-red-600 text-black outline outline-black text-sm absolute bottom-3 hover:cursor-pointer'
-            onClick={() => navigate(`/individualmovie/${movieId}`)}  // Navigate to Individual Movie page
+            onClick={handleMoreInfo}  // Calls function to check user login
           >
             More Info
           </button>
