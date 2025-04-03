@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";  // Import useNavigate
+import { useNavigate } from "react-router-dom";
+  // Import useNavigate
 import Robot from '../assets/Robot.png';
 
 function MovieCard({ movieId }) {

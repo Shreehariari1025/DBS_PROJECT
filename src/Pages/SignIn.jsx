@@ -1,75 +1,89 @@
 import React, { useState } from 'react';
-import Rectangle10 from "../assets/Rectangle10.png";
 import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../Pages/UserContext';
+import Rectangle10 from "../assets/Rectangle10.png";
 
 function SignIn() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-
+  const { loginUser } = useUser();  
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleLogin = async () => {
-    setError(""); // Reset error message before new request
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    const email = formData.email;  
+    const password = formData.password;
+
+    console.log("Sending Login Request:", { email, password });
+
+    if (!email || !password) {
+        console.error("Email and password are required");
+        return;
+    }
 
     try {
-      const response = await fetch("http://localhost:5000/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+        const response = await fetch("http://localhost:5000/signin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
-        alert("Login successful!");
-        navigate("/dashboard"); // Redirect to dashboard
-      } else {
-        setError(data.error || "Something went wrong. Try again.");
-      }
+        if (!response.ok) {
+            throw new Error(data.error || "Login failed");
+        }
+
+        console.log("Login successful:", data);
+
+        // ✅ Store user details in localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        navigate("/dashboard");
     } catch (error) {
-      setError("Failed to connect to the server.");
-      console.error("Login failed:", error);
+        console.error("Error during login:", error);
     }
-  };
+};
+
+
 
   return (
-    <div className="w-full h-screen px-[150px] relative bg-gradient-to-br from-black to-red-950 flex justify-center items-center text-neutral-200">
+    <div className="w-full h-screen px-[150px] flex justify-center items-center text-neutral-200 bg-gradient-to-br from-black to-red-950">
       <div className='w-3xl h-[600px] flex gap-3 rounded-3xl border border-red-600'>
         
-        <div className='px-4 pt-5 w-1/2 flex flex-col justify-start gap-3 relative bg-gradient-to-l from-stone-950 to-red-800 rounded-3xl'>
+        <div className='px-4 pt-5 w-1/2 flex flex-col gap-3 bg-gradient-to-l from-stone-950 to-red-800 rounded-3xl'>
           <h2 className='text-red-600 text-2xl text-center'>SIGN IN</h2>
 
           {error && <p className="text-red-400 text-center">{error}</p>}
 
-          <div className='flex flex-col justify-center'>
+          <div className='flex flex-col'>
             <label htmlFor="email">Email</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="email" id='email' value={formData.email} onChange={handleChange} />
+            <input className='bg-black rounded-xl border p-2' type="email" id='email' value={formData.email} onChange={handleChange} />
           </div>
 
-          <div className='flex flex-col justify-center'>
+          <div className='flex flex-col'>
             <label htmlFor="password">Password</label>
-            <input className='bg-black rounded-xl border border-red-50 p-2' type="password" id='password' value={formData.password} onChange={handleChange} />
+            <input className='bg-black rounded-xl border p-2' type="password" id='password' value={formData.password} onChange={handleChange} />
           </div>
 
-          <div className='absolute bottom-5 flex flex-col items-center justify-center gap-2'>
-            <button className='text-black w-40 h-12 bg-red-600 rounded-3xl outline-black hover:cursor-pointer' onClick={handleLogin}>
-              Sign In
-            </button>
-            <div>
-              Don't have an account? <Link className='underline hover:decoration-red-600' to='/register'>Register</Link>
-            </div>
+          <button className='mt-5 text-black bg-red-600 rounded-3xl px-4 py-2' onClick={handleLogin}>
+            Sign In
+          </button>
+
+          <div className='text-center'>
+            Don't have an account? <Link className='underline text-red-500' to='/register'>Register</Link>
           </div>
         </div>
 
-        <div className='w-1/2 h-full'>
-          <img className='w-full h-full object-cover flex-shrink-0 rounded-r-3xl' src={Rectangle10} alt="Not found!" />
+        <div className='w-1/2'>
+          <img className='w-full h-full object-cover rounded-r-3xl' src={Rectangle10} alt="Sign In" />
         </div>
 
       </div>

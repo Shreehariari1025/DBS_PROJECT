@@ -51,7 +51,7 @@ function Register() {
       const data = await response.json();
       if (response.ok) {
         alert('Registration successful');
-        navigate('/dashboard');
+        navigate('/signin');
       } else {
         alert(data.message || 'Something went wrong');
       }

@@ -15,12 +15,13 @@ import UserProfile from './Pages/UserProfile'
 import ReviewCard2 from './components/ReviewCard2'
 import IndividualMovie from './Pages/IndividualMovie';
 import Review from './Pages/Review';
+import { UserProvider } from './Pages/UserContext';
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-    
+    <UserProvider>
       <Routes>
         <Route path="/" element={<Landing/>} />
         <Route path="/signin" element={<SignIn />} />
@@ -30,6 +31,8 @@ function App() {
         <Route path="/individualmovie/:movieId" element={<IndividualMovie/>} />
         <Route path="/review" element={<Review/>} />
       </Routes>
+    </UserProvider>
+      
    
   )
 }

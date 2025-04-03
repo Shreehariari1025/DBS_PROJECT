@@ -2,12 +2,37 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mysql = require('mysql2');
+const session = require("express-session");
+const jwt = require("jsonwebtoken");
+const MySQLStore = require("express-mysql-session")(session);
+
+// Middleware to verify JWT
+const authenticateToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token from "Bearer <token>"
+    
+    if (!token) {
+        return res.status(401).json({ error: "Access denied. No token provided." });
+    }
+
+    jwt.verify(token, "your_secret_key", (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ error: "Invalid or expired token" });
+        }
+        req.user = decoded; // Store decoded user info in `req.user`
+        next();
+    });
+};
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
 app.use(express.json()); // To handle JSON requests
+
+app.use(cors({
+    origin: "http://localhost:5173", // Allow only your frontend URL
+    credentials: true // Allow cookies & sessions
+}));
+
 
 let user;
 // Database connection
@@ -18,6 +43,20 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
+// Initialize session middleware
+// app.use(session({
+//     secret: "hari10",
+//     resave: false,
+//     saveUninitialized: false,
+//     store: sessionStore,
+//     cookie: {
+//         httpOnly: true,
+//         secure: false,   // Change to `true` in production with HTTPS
+//         sameSite: "lax"  // Ensures cookies are shared correctly
+//     }
+// }));
+
+
 db.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
@@ -26,39 +65,43 @@ db.connect((err) => {
     }
 });
 
+
+
+
 app.post("/signin", async (req, res) => {
-    const { email, password } = req.body;
-
-    console.log("Login attempt:", { email, password }); // Log entered data
-
-    if (!email || !password) {
-        console.log("Missing email or password");
-        return res.status(400).json({ error: "Email and password are required" });
-    }
-
     try {
-        // Check if user exists
-        [user] = await db.promise().query(
-            `SELECT User.user_id, User.name, Credentials.password 
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email and password are required" });
+        }
+
+        const [users] = await db.promise().query(
+            `SELECT User.user_id, User.name, User.email, Credentials.password 
              FROM User 
              JOIN Credentials ON User.user_id = Credentials.user_id 
              WHERE User.email = ?`, 
             [email]
         );
 
-        if (user.length === 0) {
-            console.log("User not found:", email);
-            return res.status(404).json({ error: "User not found" });
+        if (!users || users.length === 0) {
+            return res.status(400).json({ error: "Invalid credentials" });
         }
 
-        // Compare passwords
-        if (user[0].password !== password) {
-            console.log("Invalid password for:", email);
+        const user = users[0];
+
+        if (user.password !== password) {
             return res.status(401).json({ error: "Invalid password" });
         }
 
-        console.log("Login successful for:", email);
-        res.status(200).json({ message: "Login successful", user: { id: user[0].user_id, name: user[0].name } });
+        res.json({
+            user: {
+                id: user.user_id,
+                name: user.name,
+                email: user.email
+            }
+        });
+
     } catch (error) {
         console.error("Error during login:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -66,14 +109,15 @@ app.post("/signin", async (req, res) => {
 });
 
 
+
 app.get("/movies/:id", async (req, res) => {
     const { id } = req.params;
-    console.log(`Fetching movie with ID: ${id}`);  // Log request
+   // console.log(`Fetching movie with ID: ${id}`);  // Log request
     
     try {
         const [movie] = await db.promise().query("SELECT m.title, m.genre, m.release_year, i.image_url, round(avg(r.rating),1) as avg_rating FROM movie m JOIN movieimages i on i.movie_id= m.movie_id join reviews r on r.movie_id = m.movie_id WHERE m.movie_id = ? group by m.title, m.genre, m.release_year, i.image_url", [id]);
         
-        console.log("Query Result:", movie);  // Log DB response
+       // console.log("Query Result:", movie);  // Log DB response
         
         if (movie.length === 0) {
             console.log("Movie not found");
@@ -139,25 +183,46 @@ app.post('/register', (req, res) => {
   });
   
 
-// app.get('/recommended/:userId', (req, res) => {
-//     const userId = req.params.userId;
-//     console.log(user);
-//     const query = `SELECT r.movie_id, r.title, r.genre, r.language, avg(re.rating)as avg_rating, m.image_url,movie.release_year FROM RecommendedMovies r join movie on movie.movie_id = r.movie_id join reviews re on re.movie_id=r.movie_id join movieimages m on m.movie_id = r.movie_id WHERE r.user_id = ? group by r.movie_id, r.title, r.genre, r.language, m.image_url`;
+  
 
-//     db.query(query, [userId], (err, results) => {
-//         if (err) {
-//             console.error('Error fetching recommended movies:', err);
-//             return res.status(500).json({ error: 'Internal Server Error' });
-//         }
-//         console.log('Recommended Movies:', results);
-//         res.json(results);
-//     });
-// });
+  
+  // Updated API using JWT authentication
+  app.get("/recommended", (req, res) => {
+    const userId = req.query.user_id; // Get user_id from frontend request
+
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const query = `
+        SELECT r.movie_id, r.title, r.genre, r.language, 
+               AVG(re.rating) AS avg_rating, m.image_url, movie.release_year 
+        FROM RecommendedMovies r
+        JOIN movie ON movie.movie_id = r.movie_id
+        JOIN reviews re ON re.movie_id = r.movie_id
+        JOIN movieimages m ON m.movie_id = r.movie_id
+        WHERE r.user_id = ? 
+        GROUP BY r.movie_id, r.title, r.genre, r.language, m.image_url, movie.release_year
+    `;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error("Error fetching recommended movies:", err);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+
+        console.log("Recommended Movies for User ID:", userId, results);
+        res.json(results);
+    });
+});
+
+
+  
 
 // Server-side code for fetching trending movies
 app.get('/trending', (req, res) => {
     const query = 'SELECT * FROM TrendingMovies';  // Query for trending movies
-    console.log('Fetching trending movies...');  // Check if this log appears
+    //console.log('Fetching trending movies...');  // Check if this log appears
   
     db.query(query, (err, results) => {
       if (err) {
@@ -165,7 +230,7 @@ app.get('/trending', (req, res) => {
         return res.status(500).json({ message: 'Failed to fetch trending movies.' });
       }
   
-      console.log('Query Result:', results);  // This should print the result of the query
+     // console.log('Query Result:', results);  // This should print the result of the query
   
       if (results.length === 0) {
         return res.status(404).json({ message: 'No trending movies found.' });
@@ -325,6 +390,49 @@ GROUP BY m.title, m.genre, m.release_year, image_url, m.description;
 });
 
   
+
+app.get("/user/:userId", async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        const [rows] = await db.promise().query(
+            `SELECT 
+                u.user_id, 
+                u.name, 
+                u.email, 
+                u.phone_no, 
+                c.password, 
+                ur.preferred_genre, 
+                ur.preferred_language
+            FROM user u
+            JOIN credentials c ON u.user_id = c.user_id
+            JOIN userPreferences ur ON ur.user_id = u.user_id  
+            WHERE u.user_id = ?`,
+            [userId]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Extract first user object from array
+        const user = rows[0];
+
+        // Convert stored JSON strings into proper arrays
+        user.preferred_genre = JSON.parse(user.preferred_genre || "[]");
+        user.preferred_language = JSON.parse(user.preferred_language || "[]");
+
+        res.json(user);  // Send only the first user object
+    } catch (err) {
+        console.error("Error fetching user details:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
+
+
+
   
 // Start server
 const PORT = process.env.PORT || 5000;
