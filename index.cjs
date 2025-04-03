@@ -347,29 +347,7 @@ app.post('/sendreviews', (req, res) => {
               return res.status(500).json({ error: 'Failed to add review' });
             }
   
-            // Step 4: Update movie average rating (optional)
-            const updateRatingQuery = `
-              UPDATE movies 
-              SET avg_rating = (
-                SELECT AVG(rating) 
-                FROM reviews 
-                WHERE movie_id = ?
-              ) 
-              WHERE movie_id = ?
-            `;
-  
-            db.execute(updateRatingQuery, [movie_id, movie_id], (err, updateResult) => {
-              if (err) {
-                console.error('Error updating movie rating:', err);
-                // Don't fail the request - just log the error
-              }
-  
-              // Successfully inserted review
-              res.status(201).json({ 
-                message: 'Review added successfully',
-                review_id: reviewResult.insertId
-              });
-            });
+            
           }
         );
       });
