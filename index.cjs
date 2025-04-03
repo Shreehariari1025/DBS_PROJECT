@@ -11,7 +11,6 @@ app.use(express.json()); // To handle JSON requests
 
 app.use(cors({
     origin: "http://localhost:5173", // Allow only your frontend URL
-    credentials: true // Allow cookies & sessions
 }));
 
 

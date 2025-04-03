@@ -14,7 +14,6 @@ function IndividualMovie() {
   const [nonActors, setNonActors] = useState([]);
   const [similarMovies, setSimilarMovies] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [recentlyWatched, setRecentlyWatched] = useState([]);
 
   const { user }= useUser(); // Replace with actual user ID
 
@@ -48,10 +47,10 @@ function IndividualMovie() {
   }, [movieId]);
 
   const handleWatchNow = async () => {
-    console.log("User ID:", user?.user_id);
+    console.log("User ID:", user?.id);
     console.log("Movie ID:", movieId);
 
-    if (!user?.user_id || !movieId) {
+    if (!user?.id || !movieId) {
         console.error("User ID or Movie ID is missing");
         return;
     }
@@ -60,7 +59,7 @@ function IndividualMovie() {
         const response = await fetch('http://localhost:5000/watch-now', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: user.user_id, movie_id: movieId })
+            body: JSON.stringify({ user_id: user.id, movie_id: movieId })
         });
 
         if (response.ok) {
