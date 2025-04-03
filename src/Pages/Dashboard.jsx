@@ -52,7 +52,7 @@ function Dashboard() {
         .then(data => setRecommendedMovies(data))
         .catch(err => console.error("Error fetching recommended movies:", err));
       
-      fetch(`http://localhost:5000/watch-history?user_id=${user.id}`)
+      fetch(`http://localhost:5000/watch-history/${user.id}`)
         .then(res => res.json())
         .then(data => setWatchedRecently(data))
         .catch(err => console.error("Error fetching watched recently movies:", err));

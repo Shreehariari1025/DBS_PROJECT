@@ -16,7 +16,6 @@ function IndividualMovie() {
   const [nonActors, setNonActors] = useState([]);
   const [similarMovies, setSimilarMovies] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [recentlyWatched, setRecentlyWatched] = useState([]);
 
   const { user }= useUser(); // Replace with actual user ID
 
@@ -66,10 +65,10 @@ function IndividualMovie() {
   }, [movieId]);
 
   const handleWatchNow = async () => {
-    console.log("User ID:", user?.user_id);
+    console.log("User ID:", user?.id);
     console.log("Movie ID:", movieId);
 
-    if (!user?.user_id || !movieId) {
+    if (!user?.id || !movieId) {
         console.error("User ID or Movie ID is missing");
         return;
     }
@@ -78,7 +77,7 @@ function IndividualMovie() {
         const response = await fetch('http://localhost:5000/watch-now', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: user.user_id, movie_id: movieId })
+            body: JSON.stringify({ user_id: user.id, movie_id: movieId })
         });
 
         if (response.ok) {
@@ -168,14 +167,19 @@ function IndividualMovie() {
         </div>
       </div>
 
-      <div className='bg-gradient-to-br from-black to-red-950 p-15'>
-        <div className='text-3xl font-[Montserrat] text-left'>Similar Movies</div>
-        <div className='flex gap-2 h-75 items-center overflow-x-auto'>
-          {similarMovies.map(movie => (
-            <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
-          ))}
-        </div>
-      </div>
+      {/* Similar Movies Section */}
+<div className='bg-gradient-to-br from-black to-red-950 p-15'>
+  <div className='text-3xl font-[Montserrat] text-left'>Similar Movies</div>
+  <div className='flex gap-2 h-75 items-center overflow-x-auto'>
+    {similarMovies.length > 0 ? (
+      similarMovies.map(movie => (
+        <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
+      ))
+    ) : (
+      <p className='text-white'>No similar movies available.</p>
+    )}
+  </div>
+</div>
 
       
 
