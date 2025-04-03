@@ -33,16 +33,19 @@ function Landing() {
     </div>
     </div>
 
-    <div id='trending' className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
-    <div className='text-red-50 text-4xl text-left font-[Montserrat]'>Trending movies</div>
-    <div className='flex flex-row overflow-x-auto items-center gap-2'>
-    
-      {trendingMovies.map((movie) => (
-            <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
-          ))}
-    
-    </div>
-    </div>
+    {/* Trending Movies Section */}
+    <div id='trending' className='bg-gradient-to-br from-stone-950 to-black flex flex-col gap-3 p-20'>
+        <div className='text-3xl font-[Montserrat] text-left'>Trending Movies</div>
+        <div className='flex gap-2 items-center overflow-x-auto'>
+          {trendingMovies.length > 0 ? (
+            trendingMovies.map((movie) => (
+              <MovieCard key={movie.movie_id} movieId={movie.movie_id} />
+            ))
+          ) : (
+            <p className='text-white'>No trending movies available.</p>
+          )}
+        </div>
+      </div>
 
     <div id='about' className='flex flex-col justify-evenly  relative bg-gradient-to-l from-stone-950 to-black gap-3 p-20'>
         <div className='text-red-50 text-4xl text-left font-[Montserrat]'>About website</div>
