@@ -103,11 +103,11 @@ function UserProfile() {
                     <div>Watched: {userData.watched || 0}</div>
                     <div>Rated: {userData.rated || 0}</div>
                 </div>
-                <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2">
+                {/* <div className="flex flex-col items-start gap-1 bg-gradient-to-br from-red-50 to-red-300 rounded-2xl border border-red-50 p-2">
                     <div className="text-xl">Favorites</div>
                     <div>Actor: {userData.favorite_actor || "Not specified"}</div>
                     <div>Actress: {userData.favorite_actress || "Not specified"}</div>
-                </div>
+                </div> */}
             </div>
 
             <div> 

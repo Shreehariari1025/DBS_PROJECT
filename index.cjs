@@ -100,61 +100,76 @@ app.get("/movies/:id", async (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    const { name, email, phone_no, password, preferred_genre, preferred_language } = req.body;
-  
-    // Validate required fields
-    if (!name || !email || !phone_no || !password) {
-      return res.status(400).json({ message: 'All fields are required!' });
+  const { name, email, phone_no, password, preferred_genre, preferred_language } = req.body;
+
+  // Validate required fields
+  if (!name || !email || !phone_no || !password) {
+    return res.status(400).json({ message: 'All fields are required!' });
+  }
+
+  // Validate email format
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailPattern.test(email)) {
+    return res.status(400).json({ message: 'Invalid email format' });
+  }
+
+  // Validate phone number format
+  const phonePattern = /^[0-9]{10}$/;
+  if (!phonePattern.test(phone_no)) {
+    return res.status(400).json({ message: 'Phone number must be exactly 10 digits' });
+  }
+
+  // Validate password length
+  if (password.length < 8) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+  }
+
+  console.log({
+      name,
+      email,
+      phone_no,
+      password,
+      preferred_genre,
+      preferred_language
+  });
+
+  // Step 1: Insert into the User table
+  const userQuery = `INSERT INTO User (name, email, phone_no) VALUES (?, ?, ?)`;
+
+  db.execute(userQuery, [name, email, phone_no], (err, result) => {
+    if (err) {
+      console.error('Error inserting into User table:', err);
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ message: 'Email or phone number already exists' });
+      }
+      return res.status(500).json({ message: 'Database error occurred' });
     }
-    console.log({
-        name,
-        email,
-        phone_no,
-        password,
-        preferred_genre,
-        preferred_language
-      });
-  
-    // Step 1: Insert into the User table
-    const userQuery = `INSERT INTO User (name, email, phone_no) VALUES (?, ?, ?)`;
-    
-    db.execute(userQuery, [name, email, phone_no], (err, result) => {
+
+    // Step 2: Insert into the Credentials table
+    const user_id = result.insertId;
+    const credentialsQuery = `INSERT INTO Credentials (user_id, password) VALUES (?, ?)`;
+
+    db.execute(credentialsQuery, [user_id, password], (err, result) => {
       if (err) {
-        console.error('Error inserting into User table:', err);
+        console.error('Error inserting into Credentials table:', err);
         return res.status(500).json({ message: 'Database error occurred' });
       }
-  
-      // Step 2: Insert into the Credentials table (after getting the user_id)
-      const user_id = result.insertId;
-      const credentialsQuery = `INSERT INTO Credentials (user_id, password) VALUES (?, ?)`;
-  
-      db.execute(credentialsQuery, [user_id, password], (err, result) => {
+
+      // Step 3: Insert into the UserPreferences table
+      const preferencesQuery = `INSERT INTO UserPreferences (user_id, preferred_genre, preferred_language) VALUES (?, ?, ?)`;
+
+      db.execute(preferencesQuery, [user_id, preferred_genre, preferred_language], (err, result) => {
         if (err) {
-          console.error('Error inserting into Credentials table:', err);
+          console.error('Error inserting into UserPreferences table:', err);
           return res.status(500).json({ message: 'Database error occurred' });
         }
-  
-        // Step 3: Insert into the UserPreferences table
-        const preferencesQuery = `INSERT INTO UserPreferences (user_id, preferred_genre, preferred_language) VALUES (?, ?, ?)`;
-  
-        db.execute(preferencesQuery, [user_id, preferred_genre, preferred_language], (err, result) => {
-          if (err) {
-            console.error('Error inserting into UserPreferences table:', err);
-            return res.status(500).json({ message: 'Database error occurred' });
-          }
-  
-          // Successfully inserted into all tables
-          res.status(200).json({ message: 'Registration successful' });
-        });
+
+        // Successfully inserted into all tables
+        res.status(200).json({ message: 'Registration successful' });
       });
     });
   });
-  
-
-  
-
-
-
+});
 
   
 
@@ -199,11 +214,11 @@ app.get('/actors/:movie_id', (req, res) => {
     const movieId = req.params.movie_id;
   
     const query = `
-      SELECT individuals.individual_id, individuals.name, individuals.image
+      SELECT individuals.individual_id, individuals.name, individuals.image, role.role
       FROM cast
       JOIN individuals ON cast.individual_id = individuals.individual_id
       join role on role.individual_id = cast.individual_id
-      WHERE cast.movie_id = ? AND role.role = 'Actor';
+      WHERE cast.movie_id = ? AND (role.role = 'Actor' or role.role = 'Actress');
     `;
   
     db.query(query, [movieId], (err, results) => {
@@ -218,11 +233,11 @@ app.get('/actors/:movie_id', (req, res) => {
     const movieId = req.params.movie_id;
   
     const query = `
-      SELECT individuals.individual_id, individuals.name, individuals.image
+      SELECT individuals.individual_id, individuals.name, individuals.image, role.role
       FROM cast
       JOIN individuals ON cast.individual_id = individuals.individual_id
       join role on role.individual_id = cast.individual_id
-      WHERE cast.movie_id = ? AND role.role != 'Actor';
+      WHERE cast.movie_id = ? AND (role.role != 'Actor' and role.role !='Actress');
     `;
   
     db.query(query, [movieId], (err, results) => {

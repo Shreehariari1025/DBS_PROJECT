@@ -157,7 +157,7 @@ function IndividualMovie() {
         <div className='text-3xl font-[Montserrat] text-left'>Cast</div>
         <div className='flex gap-2 h-75 items-center overflow-x-auto'>
           {actors.map(actor => (
-            <CastCard key={actor.individual_id} actorName={actor.name} image={actor.image} role="Actor" />
+            <CastCard key={actor.individual_id} actorName={actor.name} image={actor.image} role={actor.role} />
           ))}
         </div>
       </div>
@@ -166,7 +166,7 @@ function IndividualMovie() {
         <div className='text-3xl font-[Montserrat] text-left'>Crew</div>
         <div className='flex gap-2 h-75 items-center overflow-x-auto'>
           {nonActors.map(crew => (
-            <CastCard key={crew.individual_id} actorName={crew.name} image={crew.image} role="Crew" />
+            <CastCard key={crew.individual_id} actorName={crew.name} image={crew.image} role={crew.role}/>
           ))}
         </div>
       </div>

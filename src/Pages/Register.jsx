@@ -30,15 +30,48 @@ function Register() {
     setLanguages((prev) => prev.includes(language) ? prev.filter(l => l !== language) : [...prev, language]);
   };
 
+  const validateForm = () => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phonePattern = /^[0-9]{10}$/; // Only 10 digits
+    const { email, phone_no, password, confirmPassword } = formData;
+  
+    if (!formData.name.trim()) {
+      alert("Name is required");
+      return false;
+    }
+  
+    if (!emailPattern.test(email)) {
+      alert("Invalid email format");
+      return false;
+    }
+  
+    if (!phonePattern.test(phone_no)) {
+      alert("Phone number must be exactly 10 digits");
+      return false;
+    }
+  
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters long");
+      return false;
+    }
+  
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return false;
+    }
+  
+    return true; // Form is valid
+  };
+  
   const handleRegister = async () => {
-    console.log(formData); // Log all the details to the console
-
+    if (!validateForm()) return; // Stop if validation fails
+  
     const requestBody = {
       ...formData,
       preferred_genre: genres,
       preferred_language: languages,
     };
-
+  
     try {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
@@ -47,7 +80,7 @@ function Register() {
         },
         body: JSON.stringify(requestBody),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         alert('Registration successful');
@@ -60,6 +93,7 @@ function Register() {
       alert('An error occurred');
     }
   };
+  
 
   return (
     <div className="w-full h-screen px-[150px] relative bg-gradient-to-br from-black to-red-950 flex justify-center items-center text-neutral-200">
