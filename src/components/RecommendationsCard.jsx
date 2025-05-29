@@ -28,7 +28,7 @@ function RecommendationsCard({ movieId }) {
                 </div>
 
                 {/* Title & Rating */}
-                <div className="flex justify-between p-2 text-2xl sm:text-sm">
+                <div className="flex justify-between p-2 lg:text-2xl md:text-xs  ">
                     <div>{movie.title}</div>
                     <div className="flex justify-center items-center gap-1">
                         <i className="fa-sharp fa-solid fa-star fa-sm" style={{ color: "#dc2626" }}></i>

@@ -92,7 +92,7 @@ function EditProfile() {
     }
 
     return (
-        <div className="w-screen h-screen font-[Inter] bg-gradient-to-br from-black to-red-950 text-red-50">
+        <div className="w-screen h-full font-[Inter] bg-gradient-to-br from-black to-red-950 text-red-50">
             {/* Navbar */}
             <div className="relative z-30 text-white font-[Inter]">
                 <div className="w-full h-20 bg-red-50/10 backdrop-blur-md fixed top-0 left-0 flex justify-between p-3 items-center">
@@ -109,7 +109,7 @@ function EditProfile() {
             </div>
 
             {/* Edit Form */}
-            <div className="px-20 pt-32 pb-20">
+            <div className="px-20  pb-20">
                 <div className="bg-gradient-to-br from-stone-950 to-black p-10 rounded-xl border border-red-900">
                     <h1 className="text-3xl font-[Montserrat] mb-6">Edit Profile</h1>
                     
@@ -127,7 +127,7 @@ function EditProfile() {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="w-full bg-red-50/5 border border-red-900/50 rounded p-2"
+                                        className="w-100 bg-red-50/5 border border-red-900/50 rounded p-2"
                                         required
                                     />
                                 </div>
@@ -138,7 +138,7 @@ function EditProfile() {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="w-full bg-red-50/5 border border-red-900/50 rounded p-2"
+                                        className="w-100 bg-red-50/5 border border-red-900/50 rounded p-2"
                                         required
                                     />
                                 </div>
@@ -149,7 +149,7 @@ function EditProfile() {
                                         name="phone_no"
                                         value={formData.phone_no}
                                         onChange={handleChange}
-                                        className="w-full bg-red-50/5 border border-red-900/50 rounded p-2"
+                                        className="w-100 bg-red-50/5 border border-red-900/50 rounded p-2"
                                         required
                                     />
                                 </div>

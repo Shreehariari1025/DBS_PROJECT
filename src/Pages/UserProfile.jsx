@@ -62,7 +62,7 @@ function UserProfile() {
     if (error) {
         return <div className="text-red-500">Error: {error}</div>;
     }
-
+    console.log(user);
     return (
         <div className="w-screen h-screen font-[Inter] bg-gradient-to-br from-black to-red-950 text-red-50">
             {/* Navbar */}

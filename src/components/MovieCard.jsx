@@ -31,7 +31,7 @@ function MovieCard({ movieId }) {
         <img className="w-full h-52 object-cover rounded-t-2xl m-0 p-0" src={movie.image_url} alt={movie.title} />
 
         {/* Movie Name & Rating */}
-        <div className='flex justify-between px-2 text-sm'>
+        <div className='flex justify-between px-2 text-sm '>
           <div>{movie.title}</div>
           <div className='flex justify-center items-center gap-1'>
             <i className="fa-sharp fa-solid fa-star fa-sm" style={{ color: "#dc2626" }}></i>

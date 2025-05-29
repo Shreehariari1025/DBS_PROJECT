@@ -415,9 +415,9 @@ app.get("/user/:userId", async (req, res) => {
                 count(r.review_id) as rated,
                 count(w.movie_id) as watched
             FROM user u
-            join watchhistory w on w.user_id = u.user_id
-            join reviews r on r.user_id = u.user_id
-            JOIN userPreferences ur ON ur.user_id = u.user_id  
+            left outer join watchhistory w on w.user_id = u.user_id
+            left outer join reviews r on r.user_id = u.user_id
+            left outer JOIN userPreferences ur ON ur.user_id = u.user_id  
             WHERE u.user_id = ?`,
             [userId]
         );

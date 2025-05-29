@@ -1,11 +1,13 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import {useNavigate } from "react-router-dom";
+import ConfirmDialog from "./ConfirmDialog"; 
 
 function ReviewCard2({ review, onDelete }) {
     const navigate = useNavigate(); // ✅ Initialize navigation
-
+    const [showConfirm, setShowConfirm] = useState(false);
     const handleDelete = async () => {
-        if (!window.confirm("Are you sure you want to delete this review?")) return;
+       
 
         try {
             const response = await fetch(`http://localhost:5000/deletereviews/${review.review_id}`, {
@@ -47,9 +49,19 @@ function ReviewCard2({ review, onDelete }) {
                     <button className="lg:w-44 sm:w-25 h-10 bg-red-600 rounded-2xl" onClick={handleEdit}>
                         Edit review
                     </button>
-                    <button className="lg:w-44 sm:w-25 h-10 bg-white rounded-2xl" onClick={handleDelete}>
+                    <button onClick={() => setShowConfirm(true)} className="lg:w-44 sm:w-25 h-10 bg-white rounded-2xl" >
                         Delete review
                     </button>
+                    {showConfirm && (
+        <ConfirmDialog
+          message="Are you sure you want to delete this review?"
+          onConfirm={() => {
+            handleDelete();
+            setShowConfirm(false);
+          }}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
                 </div>
             </div>
         </div>

@@ -6,6 +6,7 @@ import MovieCard from '../components/MovieCard';
 import Footer from '../components/Footer';
 import SearchPage from './SearchPage';
 
+
 function Dashboard() {
 
 
@@ -26,7 +27,7 @@ function Dashboard() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-
+    console.log(storedUser);
     if (!storedUser) {
       navigate("/signin");  // Redirect to signin if user is not found
     } else {
@@ -36,6 +37,7 @@ function Dashboard() {
 
   // ✅ Fetch Movies Only If User Exists
   useEffect(() => {
+    console.log(user);
     if (user) {
       fetch("http://localhost:5000/trending")
         .then(res => res.json())
