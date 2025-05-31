@@ -53,20 +53,21 @@ function Review() {
       setError('Please fill all fields and provide a rating');
       return;
     }
-
+    const currReview={
+          user_id: user.id,
+          movie_id: movieId,
+          review_heading: headline,
+          review_text: content,
+          rating: rating
+        }
     try {
       const response = await fetch('http://localhost:5000/sendreviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          user_id: user.id,
-          movie_id: movieId,
-          review_heading: headline,
-          review_text: content,
-          rating: rating
-        }),
+        
+        body: JSON.stringify(currReview),
       });
 
       if (!response.ok) {
@@ -74,11 +75,12 @@ function Review() {
         throw new Error(errorData.error || 'Failed to submit review');
       }
 
-      // Refresh reviews after successful submission
-      const newResponse = await fetch(`http://localhost:5000/reviews/${movieId}`);
-      const newData = await newResponse.json();
-      setReviews(newData);
       
+      const savedReview = await response.json(); // backend should return full review object
+
+setReviews((prev) => [savedReview, ...prev]); // prepend to show latest first
+
+      log(reviews);
       // Reset form
       setHeadline('');
       setContent('');
@@ -206,7 +208,7 @@ function Review() {
         {/* Existing Reviews */}
         <div className="px-16 py-8">
           <h2 className="text-2xl font-semibold mb-6">Recent Reviews</h2>
-          {reviews.length > 0 ? (
+       {reviews.length > 0 ? (
             reviews.map((review) => (
               <ReviewCard4 key={review.review_id} review={review} />
             ))
